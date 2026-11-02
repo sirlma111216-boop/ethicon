@@ -22,7 +22,7 @@ export function useAudioDirector(state: PublicState | undefined, active: boolean
     const p = prev.current;
     if (p) {
       if (p.phase !== state.phase) {
-        void audio.sfx(state.phase === 'ending' ? 'ending' : state.phase === 'r2_reveal' ? 'clue' : 'transition');
+        void audio.sfx(state.phase === 'ending' ? 'ending' : state.phase === 'investigate_reveal' ? 'clue' : 'transition');
       } else if (p.roundId === state.round.roundId) {
         if (!p.revealed && state.round.revealed) void audio.sfx('reveal');
         else if (!p.locked && state.round.locked && !state.round.revealed) void audio.sfx('time');

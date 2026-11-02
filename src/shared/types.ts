@@ -3,19 +3,16 @@
 
 export const PHASES = [
   'lobby',
-  'intro',
-  'practice',
-  'pre_survey',
-  'r1_vote',
-  'r1_result',
-  'r1_info',
-  'r2_choose',
-  'r2_reveal',
-  'r3_vote',
-  'r3_result',
-  'r4_questions',
-  'r4_transfer',
-  'r5_post',
+  'intro', // 이야기 · 신청자 12명 · AI 배정기 소개
+  'pre_check', // 결정 1: AI가 자료대로 계산하면 공정할까? (1탭)
+  'ai_verdict', // 결정 2: AI 추천을 승인/보류/거부 (1탭)
+  'verdict_result', // 분기 장면: 승인→발표+이의 제기 / 보류→조사 / 거부→운영자 반응
+  'investigate', // 결정 3: 조사 토큰으로 열 카드 + 내 관점의 한마디
+  'investigate_reveal', // 단서 공개 · 관점 보드
+  'redesign', // 결정 4: 새 규칙 패키지 (1탭)
+  'redesign_result', // AI 재계산 · 이전/이후 · AI 설명문
+  'transfer', // 결정 5: 다른 상황에서 먼저 물어볼 질문 (1탭) → 공동 약속
+  'post_check', // 결정 6: 처음 질문에 다시 답하기 (1탭 + 선택 이유)
   'ending',
   'closed',
 ] as const;
@@ -25,21 +22,19 @@ export type PolicyId = 'first' | 'experience' | 'newcomer';
 export type PackageId = 'keep' | 'open' | 'access' | 'mix';
 export type ClueId = 'access' | 'experience' | 'rules' | 'explanation';
 export type PerspectiveId = 'applicant' | 'newcomer' | 'organizer' | 'guide';
-export type SurveyChoice = 'always' | 'mostly' | 'depends' | 'unsure';
+export type CheckChoice = 'yes' | 'no' | 'unsure';
+export type VerdictChoice = 'approve' | 'investigate' | 'reject';
 
 export type Role = 'teacher' | 'student' | 'public';
 
 /** 학생 제출 payload — 단계별로 모양이 다르다. 서버가 zod로 검증한다. */
 export type SubmissionPayload =
-  | { kind: 'practice'; choice: 'booth' | 'food' | 'stage' | 'unsure' }
-  | { kind: 'survey'; choice: SurveyChoice; confidence: 1 | 2 | 3; reason?: string }
-  | { kind: 'policy'; choice: PolicyId | 'abstain' }
-  | { kind: 'info'; choice: ClueId | 'abstain' }
-  | { kind: 'investigate'; first: ClueId; second: ClueId; tag: string; reason?: string }
+  | { kind: 'precheck'; choice: CheckChoice }
+  | { kind: 'verdict'; choice: VerdictChoice | 'abstain' }
+  | { kind: 'investigate'; picks: ClueId[]; tag: string; reason?: string }
   | { kind: 'package'; choice: PackageId | 'abstain' }
-  | { kind: 'questions'; picks: [string, string] | [string] | []; abstain?: boolean }
   | { kind: 'transfer'; choice: string }
-  | { kind: 'post'; choice: SurveyChoice; confidence: 1 | 2 | 3; reason?: string; changeNote?: string };
+  | { kind: 'postcheck'; choice: CheckChoice; reason?: string };
 
 export type SubmissionKind = SubmissionPayload['kind'];
 
@@ -51,7 +46,7 @@ export interface Tally {
   eligible: number;
   /** 최다 득표 선택지(들). 2개 이상이면 동률. */
   top: string[];
-  /** 소수 응답(3명 미만) 항목은 counts 에서 '기타'로 묶였는지 여부 */
+  /** 소수 응답(3명 미만) 항목은 counts 에서 'few'로 묶였는지 여부 */
   smallGroupsMerged: boolean;
 }
 
@@ -98,16 +93,16 @@ export interface RevealedClue {
 }
 
 export interface RoomDecisions {
-  policy?: PolicyId;
-  policyByTeacher?: boolean;
-  infoTop?: ClueId[];
-  clues?: ClueId[]; // R2 공개 카드 2장
+  verdict?: VerdictChoice;
+  verdictByTeacher?: boolean;
+  /** 조사 토큰 수: 승인 뒤 이의 제기 → 1, 보류·거부 → 2 */
+  tokens?: number;
+  clues?: ClueId[];
   cluesByTeacher?: boolean;
   pkg?: PackageId;
   pkgByTeacher?: boolean;
   questions?: string[];
   questionsByTeacher?: boolean;
-  transferTop?: string[];
 }
 
 export interface PhaseRound {
@@ -124,6 +119,17 @@ export interface PhaseRound {
   rerunCount: number;
   /** 활동 단계에서 기본 제한 시간(초) */
   durationSeconds: number | null;
+}
+
+/** 승인 분기 장면에서 서버가 내려주는 내용 */
+export interface VerdictScene {
+  verdict: VerdictChoice;
+  title: string;
+  story: string[];
+  /** 이의 제기 편지(승인 분기) 또는 반응 */
+  letters: { applicantId: string; text: string }[];
+  tokens: number;
+  tokenNote: string;
 }
 
 /** 모든 역할에게 전달되는 공용 상태 */
@@ -149,11 +155,12 @@ export interface PublicState {
   /** 공개된 집계(현재 또는 과거 라운드). phase 별로 저장 */
   tallies: Partial<Record<Phase, Tally>>;
   allocations: {
-    r1?: AllocationResult;
+    r1?: AllocationResult; // AI 배정기의 첫 추천(선착순 기본 설정)
     r3?: Comparison;
   };
+  verdictScene?: VerdictScene;
   revealedClues: RevealedClue[];
-  /** R2 공개 후 '기본 자료' 로 열리는 미선택 단서 */
+  /** 공개 후 '기본 자료' 로 열리는 미선택 단서 */
   baseClues: RevealedClue[];
   perspectiveBoard: PerspectiveBoardRow[];
   approvedTexts: { kind: string; text: string }[];
@@ -164,11 +171,16 @@ export interface PublicState {
 }
 
 export interface EndingSummary {
-  policyName: string;
+  verdictLabel: string;
+  verdictNote: string;
+  tokens: number;
   pkgName: string;
+  gained: string[]; // 이름
+  lost: string[]; // 이름
   questions: string[];
   openQuestion: string;
   surveyShift: { before: Record<string, number>; after: Record<string, number>; respondedBefore: number; respondedAfter: number } | null;
+  principles: { id: 'fairness' | 'transparency'; name: string; official: string; whatWeDid: string }[];
   badges: { perspective: boolean; evidence: boolean; revision: boolean };
 }
 

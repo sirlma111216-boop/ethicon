@@ -64,7 +64,7 @@ if (mode === 'prepare') {
   const students = await Promise.all(joins.map((j) => connect(code, 'student', j.body.studentToken)));
   await request(t, { type: 'teacher', command: { op: 'start' } });
   await waitFor(t, (s) => s.state.phase === 'intro');
-  for (const target of ['practice', 'pre_survey', 'r1_vote']) {
+  for (const target of ['pre_check', 'ai_verdict']) {
     if (t.snap.state.round && t.snap.state.phase !== 'intro' && !t.snap.state.round.revealed) {
       await request(t, { type: 'teacher', command: { op: 'reveal' } });
       await waitFor(t, (s) => s.state.round.revealed);
@@ -72,8 +72,8 @@ if (mode === 'prepare') {
     await request(t, { type: 'teacher', command: { op: 'next' } });
     await waitFor(t, (s) => s.state.phase === target);
   }
-  await Promise.all(students.map((s) => waitFor(s, (x) => x.state.phase === 'r1_vote')));
-  const ack = await request(students[0], { type: 'submit', roundId: t.snap.state.round.roundId, phase: 'r1_vote', payload: { kind: 'policy', choice: 'newcomer' } });
+  await Promise.all(students.map((s) => waitFor(s, (x) => x.state.phase === 'ai_verdict')));
+  const ack = await request(students[0], { type: 'submit', roundId: t.snap.state.round.roundId, phase: 'ai_verdict', payload: { kind: 'verdict', choice: 'investigate' } });
   await request(t, { type: 'teacher', command: { op: 'pause' } });
   await waitFor(t, (s) => s.state.paused);
   const saved = {
@@ -113,7 +113,7 @@ if (mode === 'verify') {
   // 재개 후 제출이 계속 동작하는지
   await request(t, { type: 'teacher', command: { op: 'resume' } });
   await waitFor(t, (x) => !x.state.paused);
-  const ack = await request(s, { type: 'submit', roundId: saved.roundId, phase: 'r1_vote', payload: { kind: 'policy', choice: 'first' } });
+  const ack = await request(s, { type: 'submit', roundId: saved.roundId, phase: 'ai_verdict', payload: { kind: 'verdict', choice: 'approve' } });
   checks.push(['재개 후 제출 정상', ack.ok === true, ack.code ?? 'ok']);
   await request(t, { type: 'teacher', command: { op: 'delete_room' } });
   let ok = 0;

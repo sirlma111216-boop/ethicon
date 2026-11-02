@@ -1,17 +1,15 @@
 // 교실 공개 화면(프로젝터): 읽기 전용. 교사 메모·승인 대기열·학생별 응답을 포함하지 않는다.
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { APP_SUBTITLE, APP_TITLE, PHASE_META, SIMULATION_NOTICE, phaseMeta } from '../../shared/content';
-import { PhaseResult } from '../components/ResultViews';
+import { AI_AGENT, APP_SUBTITLE, APP_TITLE, SCENE_COUNT, SIMULATION_NOTICE, phaseMeta } from '../../shared/content';
+import { AiIntroCard, AiVerdictCard, ApplicantIntro, PhaseResult, PrinciplesBlock } from '../components/ResultViews';
+import { EndingScene, SCENE_IMAGE, TaskStrip } from '../components/StudentBody';
 import { ConnBanner, Picture, Scene, Timer } from '../components/ui';
 import { useAudioDirector } from '../hooks/useAudioDirector';
 import { useRemaining } from '../hooks/useTimer';
 import { useRoom } from '../hooks/useRoom';
 import { audio } from '../lib/audio';
-import type { ImageId } from '../lib/images';
-import { EndingScene } from './StudentPlay';
 
-const SCENE_IMAGE: Record<string, ImageId> = { intro: 'intro-desktop', allocation: 'scene-allocation', investigation: 'scene-investigation', redesign: 'scene-redesign', ending: 'ending-desktop' };
 
 export function PublicBoard({ code, token }: { code: string; token: string }) {
   const room = useRoom(token ? code : null, 'public', token || null);
@@ -87,8 +85,14 @@ export function PublicBoard({ code, token }: { code: string; token: string }) {
               <p className="eyebrow">AI 배정위원회</p>
               <h1 className="display">{APP_TITLE}</h1>
               <p className="lead" style={{ color: '#fff', marginTop: 16 }}>{APP_SUBTITLE}</p>
-              <p style={{ marginTop: 24, fontSize: '0.9em' }}>미래탐험 체험 부스 · 신청자 12명 · 우선 체험권 6장. AI가 추천하고, 위원회가 정한다.</p>
+              <p style={{ marginTop: 24, fontSize: '0.9em' }}>미래탐험 체험 부스 · 신청자 12명 · 우선 체험권 6장. {AI_AGENT.name}가 추천하고, 위원회가 정한다.</p>
             </div>
+          </div>
+        )}
+        {state.phase === 'intro' && (
+          <div className="stack">
+            <AiIntroCard />
+            <ApplicantIntro />
           </div>
         )}
 
@@ -97,8 +101,10 @@ export function PublicBoard({ code, token }: { code: string; token: string }) {
             <Scene image={img}>
               <p className="eyebrow">{meta.minuteMark}</p>
               <h1 className="h1">{meta.title}</h1>
-              <p style={{ color: 'var(--ink-dim)' }}>{meta.studentHint}</p>
+              <p style={{ color: 'var(--ink-dim)' }}>{meta.task}</p>
             </Scene>
+            <TaskStrip state={state} />
+            {state.phase === 'ai_verdict' && state.allocations.r1 && !state.round.revealed && <AiVerdictCard result={state.allocations.r1} />}
             {!state.round.revealed ? (
               <div className="card">
                 <div className="row between">
@@ -125,7 +131,7 @@ export function PublicBoard({ code, token }: { code: string; token: string }) {
             <Scene image={img}>
               <p className="eyebrow">{meta.minuteMark}</p>
               <h1 className="h1">{meta.title}</h1>
-              <p style={{ color: 'var(--ink-dim)' }}>{meta.studentHint}</p>
+              <p style={{ color: 'var(--ink-dim)' }}>{meta.task}</p>
             </Scene>
             <PhaseResult state={state} phase={state.phase} />
           </div>
@@ -134,12 +140,13 @@ export function PublicBoard({ code, token }: { code: string; token: string }) {
         {(state.phase === 'ending' || state.phase === 'closed') && state.ending && (
           <div className="stack">
             <EndingScene ending={state.ending} portrait={false} big />
+            <PrinciplesBlock e={state.ending} />
             {state.phase === 'closed' && <p className="h2">수업이 끝났어요. 수고했어요!</p>}
           </div>
         )}
 
         <p className="small muted" style={{ textAlign: 'center' }}>
-          장면 {Math.max(0, state.phaseIndex)}/{PHASE_META.length - 2} · 읽기 전용 공개 화면
+          장면 {Math.max(0, state.phaseIndex)}/{SCENE_COUNT} · 읽기 전용 공개 화면
         </p>
       </main>
     </div>

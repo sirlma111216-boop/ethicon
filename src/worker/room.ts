@@ -2,24 +2,22 @@
 // WebSocket Hibernation API + SQLite 저장소. 역할별로 다른 스냅샷을 내려보낸다.
 import { DurableObject } from 'cloudflare:workers';
 import {
+  AI_AGENT,
   APPLICANTS,
   AVATAR_EMOJI,
+  CHECK_OPTIONS,
   CLUES,
   MAX_STUDENTS,
   PACKAGES,
   PERSPECTIVES,
   PHASE_KIND,
-  POLICIES,
-  PRACTICE_OPTIONS,
+  PRINCIPLES,
   QUESTION_CANDIDATES,
   PSEUDONYM_ADJ,
   PSEUDONYM_NOUN,
-  SURVEY_OPTIONS,
-  TRANSFER_SCENARIO,
   packageById,
   phaseIndex,
   phaseMeta,
-  policyById,
 } from '../shared/content';
 import {
   allocateByPackage,
@@ -36,6 +34,7 @@ import {
 import {
   PHASES,
   type AllocationResult,
+  type CheckChoice,
   type ClueId,
   type Comparison,
   type EndingSummary,
@@ -44,20 +43,20 @@ import {
   type PerspectiveId,
   type Phase,
   type PhaseRound,
-  type PolicyId,
   type PublicState,
   type RevealedClue,
   type RoomDecisions,
   type ServerMessage,
   type SubmissionPayload,
-  type SurveyChoice,
   type Tally,
   type TeacherDecision,
   type TeacherState,
   type TeacherSummary,
+  type VerdictChoice,
+  type VerdictScene,
 } from '../shared/types';
 import { BOT_ADJ, BOT_NOUNS, botPayload } from './bots';
-import { BARRIERS, CLUE_SECRETS, OPEN_QUESTION_BY_PACKAGE, TEACHER_NOTES } from './secretContent';
+import { BARRIERS, CLUE_SECRETS, OPEN_QUESTION_BY_PACKAGE, TEACHER_NOTES, VERDICT_LABELS, VERDICT_SCENES } from './secretContent';
 import { clientMessageSchema, type ParsedClientMessage } from './validate';
 
 // ---------- 저장 문서 ----------
@@ -105,8 +104,8 @@ interface ParticipantRow {
   last_seen: number;
 }
 
-const DECISION_PHASES: Phase[] = ['r1_vote', 'r2_choose', 'r3_vote', 'r4_questions'];
-const PRIVATE_TALLY_PHASES: Phase[] = ['pre_survey', 'r5_post'];
+const DECISION_PHASES: Phase[] = ['ai_verdict', 'investigate', 'redesign', 'transfer'];
+const PRIVATE_TALLY_PHASES: Phase[] = ['pre_check', 'post_check'];
 const UNAUTH_GRACE_MS = 20_000;
 
 export async function sha256Hex(s: string): Promise<string> {
@@ -537,6 +536,10 @@ export class RoomDO extends DurableObject<Env> {
         throw new CommandError('not_allowed', '재투표에서는 동률인 선택지 중에서만 고를 수 있어요.');
       }
     }
+    if (msg.payload.kind === 'investigate') {
+      const tokens = doc.decisions.tokens ?? 2;
+      if (msg.payload.picks.length !== tokens) throw new CommandError('invalid', `조사 토큰이 ${tokens}개예요. 카드를 ${tokens}장 골라 주세요.`);
+    }
     this.storeSubmission(pid, round, doc.phase, msg.payload as SubmissionPayload);
     this.bump();
     this.send(ws, { type: 'ack', messageId: msg.messageId, ok: true, revision: doc.revision });
@@ -559,7 +562,6 @@ export class RoomDO extends DurableObject<Env> {
     // 자유 응답은 별도 테이블(승인 대기)
     const texts: { kind: string; text: string }[] = [];
     if ('reason' in payload && payload.reason) texts.push({ kind: `${payload.kind}_reason`, text: payload.reason });
-    if (payload.kind === 'post' && payload.changeNote) texts.push({ kind: 'post_change', text: payload.changeNote });
     for (const t of texts) {
       this.sql.exec(
         `INSERT INTO texts (id, round_id, participant_id, kind, text, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?)
@@ -749,6 +751,8 @@ export class RoomDO extends DurableObject<Env> {
     doc.phase = phase;
     doc.paused = false;
     const meta = phaseMeta(phase);
+    // AI 배정기의 첫 추천은 기본 설정(선착순)으로 고정. 세션 추첨 순서만 다르다.
+    if (phase === 'ai_verdict' && !doc.allocations.r1) doc.allocations.r1 = r1Allocation(AI_AGENT.defaultRuleId, this.lottery(doc));
     if (meta.activity && !doc.rounds[phase]) {
       const now = Date.now();
       doc.rounds[phase] = {
@@ -773,15 +777,16 @@ export class RoomDO extends DurableObject<Env> {
     const meta = phaseMeta(doc.phase);
     const round = doc.rounds[doc.phase];
     if (!meta.activity || !round) {
-      if (doc.phase === 'r3_result' && !doc.allocations.r3) return '라운드 3 결과가 아직 없어요.';
+      if (doc.phase === 'verdict_result' && !doc.decisions.verdict) return 'AI 추천 처리가 아직 정해지지 않았어요.';
+      if (doc.phase === 'redesign_result' && !doc.allocations.r3) return '새 규칙 결과가 아직 없어요.';
       return null;
     }
     if (!round.revealed) return '먼저 결과를 공개하거나 활동을 건너뛰어 주세요.';
     if (round.tie && round.tie.length > 1) return '동률이에요. 30초 재투표 또는 교사 결정으로 정해 주세요.';
-    if (doc.phase === 'r1_vote' && !doc.decisions.policy) return '배정 규칙이 아직 정해지지 않았어요.';
-    if (doc.phase === 'r2_choose' && !doc.decisions.clues) return '공개할 조사 카드가 아직 정해지지 않았어요.';
-    if (doc.phase === 'r3_vote' && !doc.decisions.pkg) return '새 규칙 패키지가 아직 정해지지 않았어요.';
-    if (doc.phase === 'r4_questions' && !doc.decisions.questions) return '공동 질문이 아직 정해지지 않았어요.';
+    if (doc.phase === 'ai_verdict' && !doc.decisions.verdict) return 'AI 추천을 어떻게 할지 아직 정해지지 않았어요.';
+    if (doc.phase === 'investigate' && !doc.decisions.clues) return '열어 볼 조사 카드가 아직 정해지지 않았어요.';
+    if (doc.phase === 'redesign' && !doc.decisions.pkg) return '새 규칙 묶음이 아직 정해지지 않았어요.';
+    if (doc.phase === 'transfer' && !doc.decisions.questions) return '공동 질문이 아직 정해지지 않았어요.';
     return null;
   }
 
@@ -806,63 +811,47 @@ export class RoomDO extends DurableObject<Env> {
     const phase = doc.phase;
     round.revealed = true;
     round.tie = null;
+    const choices = () => subs.map((s) => (s.payload as { choice: string }).choice);
     switch (phase) {
-      case 'practice': {
-        doc.tallies[phase] = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, PRACTICE_OPTIONS.map((o) => o.id));
-        break;
-      }
-      case 'pre_survey':
-      case 'r5_post': {
-        // 분포는 공개하지 않고 응답 수만 기록한다. (엔딩·교사 요약에서 3명 이상일 때 묶음으로만 표시)
-        const t = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, SURVEY_OPTIONS.map((o) => o.id));
+      case 'pre_check':
+      case 'post_check': {
+        // 분포는 공개하지 않고 응답 수만 기록한다(엔딩·교사 요약에서 3명 이상일 때 묶음으로만 표시).
+        const t = tallyVotes(round.roundId, choices(), eligible, CHECK_OPTIONS.map((o) => o.id));
         doc.tallies[phase] = { ...t, counts: {}, top: [] };
         break;
       }
-      case 'r1_vote': {
-        const t = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, POLICIES.map((p) => p.id));
+      case 'ai_verdict': {
+        const t = tallyVotes(round.roundId, choices(), eligible, ['approve', 'investigate', 'reject']);
         doc.tallies[phase] = t;
-        if (t.top.length === 1) this.applyPolicy(doc, t.top[0] as PolicyId, false);
+        if (t.top.length === 1) this.applyVerdict(doc, t.top[0] as VerdictChoice, false);
         else round.tie = t.top.length > 1 ? t.top : [];
         break;
       }
-      case 'r1_info': {
-        const t = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, CLUES.map((c) => c.id));
-        doc.tallies[phase] = t;
-        doc.decisions.infoTop = t.top as ClueId[];
-        break;
-      }
-      case 'r2_choose': {
-        const picks = subs.map((s) => {
-          const p = s.payload as Extract<SubmissionPayload, { kind: 'investigate' }>;
-          return [p.first, p.second];
-        });
-        const t = tallyMulti(round.roundId, picks, eligible, CLUES.map((c) => c.id), 2);
+      case 'investigate': {
+        const take = doc.decisions.tokens ?? 2;
+        const picks = subs.map((s) => (s.payload as Extract<SubmissionPayload, { kind: 'investigate' }>).picks as string[]);
+        const t = tallyMulti(round.roundId, picks, eligible, CLUES.map((c) => c.id), take);
         doc.tallies[phase] = { roundId: t.roundId, counts: t.counts, responded: t.responded, eligible: t.eligible, top: t.top, smallGroupsMerged: t.smallGroupsMerged };
-        if (t.top.length === 2) this.applyClues(doc, t.top as ClueId[], false);
-        else round.tie = t.top; // 0개(미응답) 또는 3개 이상(동률)
+        if (t.top.length === take) this.applyClues(doc, t.top as ClueId[], false);
+        else round.tie = t.top; // 0개(미응답) 또는 동률
         break;
       }
-      case 'r3_vote': {
-        const t = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, PACKAGES.map((p) => p.id));
+      case 'redesign': {
+        const t = tallyVotes(round.roundId, choices(), eligible, PACKAGES.map((p) => p.id));
         doc.tallies[phase] = t;
         if (t.top.length === 1) this.applyPackage(doc, t.top[0] as PackageId, false);
         else round.tie = t.top.length > 1 ? t.top : [];
         break;
       }
-      case 'r4_questions': {
-        const picks = subs.map((s) => (s.payload as Extract<SubmissionPayload, { kind: 'questions' }>).picks as string[]);
+      case 'transfer': {
+        // 한 사람이 질문 하나를 고르고, 많이 고른 2개가 공동 약속이 된다.
+        const picks = choices().map((c) => (c === 'abstain' ? [] : [c]));
         const t = tallyMulti(round.roundId, picks, eligible, QUESTION_CANDIDATES.map((q) => q.id), 2);
         doc.tallies[phase] = { roundId: t.roundId, counts: t.counts, responded: t.responded, eligible: t.eligible, top: t.top, smallGroupsMerged: t.smallGroupsMerged };
         if (t.top.length === 2) {
           doc.decisions.questions = t.top;
           doc.decisions.questionsByTeacher = false;
         } else round.tie = t.top;
-        break;
-      }
-      case 'r4_transfer': {
-        const t = tallyVotes(round.roundId, subs.map((s) => (s.payload as { choice: string }).choice), eligible, TRANSFER_SCENARIO.options.filter((o) => o.id !== 'abstain').map((o) => o.id));
-        doc.tallies[phase] = t;
-        doc.decisions.transferTop = t.top;
         break;
       }
       default:
@@ -877,21 +866,22 @@ export class RoomDO extends DurableObject<Env> {
     if (round.revealed && !round.tie && this.decisionMade(doc, phase)) throw new CommandError('bad_state', '이미 결정됐어요.');
     const record: TeacherDecision = { phase, roundId: round.roundId, choice, reason: reason.slice(0, 200), at: Date.now() };
     switch (phase) {
-      case 'r1_vote':
-        if (!POLICIES.some((p) => p.id === choice)) throw new CommandError('invalid', '알 수 없는 규칙이에요.');
-        this.applyPolicy(doc, choice as PolicyId, true);
+      case 'ai_verdict':
+        if (!['approve', 'investigate', 'reject'].includes(choice)) throw new CommandError('invalid', '알 수 없는 선택이에요.');
+        this.applyVerdict(doc, choice as VerdictChoice, true);
         break;
-      case 'r2_choose': {
+      case 'investigate': {
+        const take = doc.decisions.tokens ?? 2;
         const ids = choice.split(',').map((s) => s.trim()) as ClueId[];
-        if (ids.length !== 2 || ids[0] === ids[1] || !ids.every((id) => CLUES.some((c) => c.id === id))) throw new CommandError('invalid', '서로 다른 조사 카드 2장을 골라 주세요.');
+        if (ids.length !== take || new Set(ids).size !== ids.length || !ids.every((id) => CLUES.some((c) => c.id === id))) throw new CommandError('invalid', `서로 다른 조사 카드 ${take}장을 골라 주세요.`);
         this.applyClues(doc, ids, true);
         break;
       }
-      case 'r3_vote':
-        if (!PACKAGES.some((p) => p.id === choice)) throw new CommandError('invalid', '알 수 없는 패키지예요.');
+      case 'redesign':
+        if (!PACKAGES.some((p) => p.id === choice)) throw new CommandError('invalid', '알 수 없는 묶음이에요.');
         this.applyPackage(doc, choice as PackageId, true);
         break;
-      case 'r4_questions': {
+      case 'transfer': {
         const ids = choice.split(',').map((s) => s.trim());
         if (ids.length !== 2 || ids[0] === ids[1] || !ids.every((id) => QUESTION_CANDIDATES.some((q) => q.id === id))) throw new CommandError('invalid', '서로 다른 질문 2개를 골라 주세요.');
         doc.decisions.questions = ids;
@@ -916,13 +906,13 @@ export class RoomDO extends DurableObject<Env> {
 
   private decisionMade(doc: RoomDoc, phase: Phase): boolean {
     switch (phase) {
-      case 'r1_vote':
-        return !!doc.decisions.policy;
-      case 'r2_choose':
+      case 'ai_verdict':
+        return !!doc.decisions.verdict;
+      case 'investigate':
         return !!doc.decisions.clues;
-      case 'r3_vote':
+      case 'redesign':
         return !!doc.decisions.pkg;
-      case 'r4_questions':
+      case 'transfer':
         return !!doc.decisions.questions;
       default:
         return true;
@@ -933,13 +923,12 @@ export class RoomDO extends DurableObject<Env> {
     return makeLottery(doc.lotterySeed);
   }
 
-  private applyPolicy(doc: RoomDoc, policy: PolicyId, byTeacher: boolean) {
-    doc.decisions.policy = policy;
-    doc.decisions.policyByTeacher = byTeacher;
-    doc.allocations.r1 = r1Allocation(policy, this.lottery(doc));
-    // 규칙이 바뀌면 이후 결과는 무효 (재실행 경로)
-    delete doc.allocations.r3;
-    delete doc.decisions.pkg;
+  private applyVerdict(doc: RoomDoc, verdict: VerdictChoice, byTeacher: boolean) {
+    doc.decisions.verdict = verdict;
+    doc.decisions.verdictByTeacher = byTeacher;
+    doc.decisions.tokens = VERDICT_SCENES[verdict].tokens;
+    // 결정이 바뀌면 이후 조사 결정은 무효(재실행 경로)
+    delete doc.decisions.clues;
   }
 
   private applyClues(doc: RoomDoc, clues: ClueId[], byTeacher: boolean) {
@@ -948,15 +937,22 @@ export class RoomDO extends DurableObject<Env> {
   }
 
   private applyPackage(doc: RoomDoc, pkg: PackageId, byTeacher: boolean) {
-    if (!doc.decisions.policy || !doc.allocations.r1) throw new CommandError('bad_state', '라운드 1 규칙이 먼저 정해져야 해요.');
+    if (!doc.allocations.r1) doc.allocations.r1 = r1Allocation(AI_AGENT.defaultRuleId, this.lottery(doc));
     doc.decisions.pkg = pkg;
     doc.decisions.pkgByTeacher = byTeacher;
-    const after = allocateByPackage(pkg, doc.decisions.policy, this.lottery(doc), BARRIERS);
+    const after = allocateByPackage(pkg, AI_AGENT.defaultRuleId, this.lottery(doc), BARRIERS);
     doc.allocations.r3 = compareAllocations(doc.allocations.r1, after);
   }
 
+  private verdictScene(doc: RoomDoc): VerdictScene | undefined {
+    const v = doc.decisions.verdict;
+    if (!v || phaseIndex(doc.phase) < phaseIndex('verdict_result')) return undefined;
+    const s = VERDICT_SCENES[v];
+    return { verdict: v, title: s.title, story: s.story, letters: s.letters, tokens: s.tokens, tokenNote: s.tokenNote };
+  }
+
   private revealedClues(doc: RoomDoc): { revealed: RevealedClue[]; base: RevealedClue[] } {
-    if (!doc.decisions.clues || phaseIndex(doc.phase) < phaseIndex('r2_reveal')) return { revealed: [], base: [] };
+    if (!doc.decisions.clues || phaseIndex(doc.phase) < phaseIndex('investigate_reveal')) return { revealed: [], base: [] };
     const selected = new Set(doc.allocations.r1?.selected ?? []);
     const build = (id: ClueId): RevealedClue => {
       const s = CLUE_SECRETS.find((c) => c.id === id)!;
@@ -974,26 +970,44 @@ export class RoomDO extends DurableObject<Env> {
   }
 
   private buildEnding(doc: RoomDoc): EndingSummary {
-    const pre = doc.rounds.pre_survey ? this.submissionsFor(doc.rounds.pre_survey.roundId) : [];
-    const post = doc.rounds.r5_post ? this.submissionsFor(doc.rounds.r5_post.roundId) : [];
+    const pre = doc.rounds.pre_check ? this.submissionsFor(doc.rounds.pre_check.roundId) : [];
+    const post = doc.rounds.post_check ? this.submissionsFor(doc.rounds.post_check.roundId) : [];
     const pkg = doc.decisions.pkg;
     const comparison = doc.allocations.r3;
+    const names = (ids: string[]) => ids.map((id) => APPLICANTS.find((a) => a.id === id)!.name);
     let openQuestion = pkg ? OPEN_QUESTION_BY_PACKAGE[pkg] : '우리는 아직 새 규칙을 정하지 못했어요. 다음 시간에 무엇부터 정해야 할까요?';
-    if (comparison && comparison.lost.length > 0) {
-      const names = comparison.lost.map((id) => APPLICANTS.find((a) => a.id === id)!.name).join('·');
-      openQuestion = `${openQuestion} 그리고 새 규칙으로 자리를 잃은 ${names}에게는 무엇을 설명해야 할까요?`;
-    }
+    if (comparison && comparison.lost.length > 0) openQuestion = `${openQuestion} 그리고 새 규칙으로 자리를 잃은 ${names(comparison.lost).join('·')}에게는 무엇을 설명해야 할까요?`;
+    const verdict = doc.decisions.verdict;
+    const info = pkg ? packageById(pkg) : null;
+    const fairnessDid = !info
+      ? '새 규칙을 정하지 못했어요.'
+      : pkg === 'keep' || pkg === 'open'
+        ? '자리는 바꾸지 않기로 했어요. 신청 기회가 늦게 열린 사람의 불리함은 그대로 남았어요.'
+        : pkg === 'access'
+          ? '신청 기회가 늦게 열린 사람의 시각을 보정하고, 처음 참여하는 사람에게 2자리를 열었어요.'
+          : '처음 참여하는 사람 3자리와 경험자 3자리로 나눠 두 입장을 모두 자리에 포함했어요.';
+    const transparencyDid = !info
+      ? '설명 방식을 정하지 못했어요.'
+      : `AI 배정기가 ${info.publishes.join('·')}까지 알리게 했어요. ${info.appeal} 그리고 우리는 AI 결정을 받으면 먼저 물어볼 질문 2개를 약속했어요.`;
     return {
-      policyName: doc.decisions.policy ? policyById(doc.decisions.policy).name : '(정하지 못함)',
-      pkgName: pkg ? packageById(pkg).name : '(정하지 못함)',
+      verdictLabel: verdict ? VERDICT_LABELS[verdict].label : '(정하지 못함)',
+      verdictNote: verdict ? VERDICT_LABELS[verdict].note : '',
+      tokens: doc.decisions.tokens ?? 0,
+      pkgName: info ? info.name : '(정하지 못함)',
+      gained: comparison ? names(comparison.gained) : [],
+      lost: comparison ? names(comparison.lost) : [],
       questions: (doc.decisions.questions ?? []).map((id) => QUESTION_CANDIDATES.find((q) => q.id === id)?.text ?? id),
       openQuestion,
       surveyShift: surveyShift(
         pre.map((s) => (s.payload as { choice: string }).choice),
         post.map((s) => (s.payload as { choice: string }).choice),
       ),
+      principles: [
+        { id: 'fairness', name: PRINCIPLES[0]!.name, official: PRINCIPLES[0]!.official, whatWeDid: fairnessDid },
+        { id: 'transparency', name: PRINCIPLES[1]!.name, official: PRINCIPLES[1]!.official, whatWeDid: transparencyDid },
+      ],
       badges: {
-        perspective: !!doc.rounds.r2_choose?.revealed,
+        perspective: !!doc.rounds.investigate?.revealed,
         evidence: !!doc.decisions.clues,
         revision: !!doc.decisions.pkg,
       },
@@ -1002,8 +1016,8 @@ export class RoomDO extends DurableObject<Env> {
 
   private buildSummary(): TeacherSummary {
     const doc = this.requireDoc();
-    const pre = doc.rounds.pre_survey ? this.submissionsFor(doc.rounds.pre_survey.roundId) : [];
-    const post = doc.rounds.r5_post ? this.submissionsFor(doc.rounds.r5_post.roundId) : [];
+    const pre = doc.rounds.pre_check ? this.submissionsFor(doc.rounds.pre_check.roundId) : [];
+    const post = doc.rounds.post_check ? this.submissionsFor(doc.rounds.post_check.roundId) : [];
     const preMap = new Map(pre.map((s) => [s.pid, (s.payload as { choice: string }).choice]));
     const pairs = post.flatMap((s) => {
       const b = preMap.get(s.pid);
@@ -1025,7 +1039,7 @@ export class RoomDO extends DurableObject<Env> {
   }
 
   private perspectiveBoard(doc: RoomDoc) {
-    const round = doc.rounds.r2_choose;
+    const round = doc.rounds.investigate;
     if (!round || !round.revealed) return [];
     const rows = this.sql
       .exec<{ perspective: PerspectiveId; payload: string }>(
@@ -1065,16 +1079,16 @@ export class RoomDO extends DurableObject<Env> {
     const clues = this.revealedClues(doc);
     const visibleTallies: Partial<Record<Phase, Tally>> = {};
     for (const [p, t] of Object.entries(doc.tallies) as [Phase, Tally][]) {
-      // 공개된 라운드만, 사전·사후는 응답 수만
       if (PRIVATE_TALLY_PHASES.includes(p)) visibleTallies[p] = { ...t, counts: {}, top: [] };
       else visibleTallies[p] = t;
     }
-    const pastR2 = phaseIndex(doc.phase) >= phaseIndex('r2_reveal');
+    const idx = phaseIndex(doc.phase);
+    const pastReveal = idx >= phaseIndex('investigate_reveal');
     return {
       code: doc.code,
       appEnv: this.env.APP_ENV ?? 'development',
       phase: doc.phase,
-      phaseIndex: phaseIndex(doc.phase),
+      phaseIndex: idx,
       round,
       revision: doc.revision,
       flowRevision: doc.flowRevision,
@@ -1090,14 +1104,15 @@ export class RoomDO extends DurableObject<Env> {
       teacherDecisions: doc.teacherDecisions,
       tallies: visibleTallies,
       allocations: {
-        r1: phaseIndex(doc.phase) >= phaseIndex('r1_result') ? doc.allocations.r1 : undefined,
-        r3: phaseIndex(doc.phase) >= phaseIndex('r3_result') ? doc.allocations.r3 : undefined,
+        r1: idx >= phaseIndex('ai_verdict') ? doc.allocations.r1 : undefined,
+        r3: idx >= phaseIndex('redesign_result') ? doc.allocations.r3 : undefined,
       },
+      verdictScene: this.verdictScene(doc),
       revealedClues: clues.revealed,
       baseClues: clues.base,
-      perspectiveBoard: pastR2 ? this.perspectiveBoard(doc) : [],
-      approvedTexts: pastR2 ? this.approvedTexts(doc) : [],
-      lottery: phaseIndex(doc.phase) >= phaseIndex('r1_result') ? this.lottery(doc) : [],
+      perspectiveBoard: pastReveal ? this.perspectiveBoard(doc) : [],
+      approvedTexts: pastReveal ? this.approvedTexts(doc) : [],
+      lottery: idx >= phaseIndex('ai_verdict') ? this.lottery(doc) : [],
       ending: doc.phase === 'ending' || doc.phase === 'closed' ? doc.ending : undefined,
       expiresAt: doc.expiresAt,
       createdAt: doc.createdAt,
@@ -1311,15 +1326,15 @@ export class RoomDO extends DurableObject<Env> {
       this.saveDoc();
       return;
     }
-    const preRound = doc.rounds.pre_survey;
+    const preRound = doc.rounds.pre_check;
     const batch = pending.sort(() => Math.random() - 0.5).slice(0, Math.max(1, Math.ceil(pending.length / 3)));
     for (const b of batch) {
-      let before: SurveyChoice | undefined;
-      if (doc.phase === 'r5_post' && preRound) {
+      let before: CheckChoice | undefined;
+      if (doc.phase === 'post_check' && preRound) {
         const row = this.sql.exec<{ payload: string }>(`SELECT payload FROM submissions WHERE round_id = ? AND participant_id = ?`, preRound.roundId, b.id).toArray()[0];
-        if (row) before = (JSON.parse(row.payload) as { choice: SurveyChoice }).choice;
+        if (row) before = (JSON.parse(row.payload) as { choice: CheckChoice }).choice;
       }
-      const payload = botPayload(doc.phase, round, b.perspective, before);
+      const payload = botPayload(doc.phase, round, b.perspective, { tokens: doc.decisions.tokens, before });
       if (payload) this.storeSubmission(b.id, round, doc.phase, payload);
     }
     if (pending.length > batch.length) doc.botsDueAt = Date.now() + 1000 + Math.floor(Math.random() * 1200);
@@ -1360,10 +1375,6 @@ function safeJson(raw: string): Record<string, unknown> | null {
 function stripText(p: SubmissionPayload): SubmissionPayload {
   if ('reason' in p) {
     const { reason: _r, ...rest } = p as SubmissionPayload & { reason?: string };
-    if ('changeNote' in rest) {
-      const { changeNote: _c, ...rest2 } = rest as SubmissionPayload & { changeNote?: string };
-      return rest2 as SubmissionPayload;
-    }
     return rest as SubmissionPayload;
   }
   return p;

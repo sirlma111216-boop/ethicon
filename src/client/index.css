@@ -891,3 +891,106 @@ table.plain td {
 .board .badge-row .badge {
   font-size: clamp(14px, 1.2vw, 22px);
 }
+
+/* ---------- 개편: 할 일 띠 · AI 배정기 카드 · 출력물 · 편지 · 초상 ---------- */
+.task-strip {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--paper-ink);
+  font-weight: 700;
+  font-size: 17px;
+  border-left: 8px solid var(--green);
+}
+.task-strip.watch {
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+.task-strip .task-label {
+  flex: 0 0 auto;
+  background: var(--paper-ink);
+  color: #fff;
+  border-radius: var(--r-pill);
+  padding: 2px 12px;
+  font-size: 14px;
+}
+.task-strip.do .task-label {
+  background: #0b7a3b;
+}
+.ai-card {
+  background: linear-gradient(135deg, #1b2160, #2a1f66);
+  border: 1px solid rgba(143, 211, 255, 0.35);
+  border-radius: var(--r-xl);
+  padding: var(--s-5);
+  color: var(--ink);
+}
+.ai-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--link);
+  color: #06152a;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 24px rgba(143, 211, 255, 0.45);
+}
+.ai-list {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+.printout {
+  margin-top: 12px;
+  background: #0b0e2c;
+  border: 1px dashed rgba(143, 211, 255, 0.45);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans Mono CJK KR', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #d7ecff;
+}
+.printout-line {
+  margin: 0;
+}
+.printout-line.muted {
+  color: rgba(215, 236, 255, 0.6);
+}
+.letter {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  border-left: 5px solid var(--apricot);
+}
+.portrait {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #16183a;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.preview-frame {
+  border: 2px dashed rgba(53, 237, 126, 0.55);
+  border-radius: var(--r-xl);
+  padding: var(--s-4);
+  background: rgba(0, 0, 0, 0.18);
+}
+.preview-frame .preview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.board .task-strip {
+  font-size: clamp(20px, 2vw, 30px);
+  padding: 16px 22px;
+}

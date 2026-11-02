@@ -1,4 +1,5 @@
 // 최적화된 WebP 자산 경로. 원본 PNG 는 assets/images 에 보존되며 배포에는 포함하지 않는다.
+// 아직 제공되지 않은 이미지는 FALLBACK 으로 기존 자산을 대신 쓴다(docs/IMAGE_REQUESTS.md 참고).
 export type ImageId =
   | 'intro-desktop'
   | 'intro-mobile'
@@ -17,7 +18,13 @@ export type ImageId =
   | 'clue-explanation'
   | 'badge-perspective'
   | 'badge-evidence'
-  | 'badge-revision';
+  | 'badge-revision'
+  // ---- 개편 후 추가 요청 자산 (제공 전까지 FALLBACK 사용) ----
+  | 'ai-kiosk'
+  | 'appeal-morning'
+  | 'announcement-board'
+  | 'principle-fairness'
+  | 'principle-transparency';
 
 const WIDTHS: Record<ImageId, number[]> = {
   'intro-desktop': [1672, 1280],
@@ -38,6 +45,41 @@ const WIDTHS: Record<ImageId, number[]> = {
   'badge-perspective': [320, 160],
   'badge-evidence': [320, 160],
   'badge-revision': [320, 160],
+  'ai-kiosk': [1672, 1280],
+  'appeal-morning': [1672, 1280],
+  'announcement-board': [1672, 1280],
+  'principle-fairness': [320, 160],
+  'principle-transparency': [320, 160],
+};
+
+/** 현재 public/images/festival 에 실제로 존재하는 자산. 새 이미지를 받으면 여기에 추가한다. */
+const PROVIDED = new Set<ImageId>([
+  'intro-desktop',
+  'intro-mobile',
+  'ending-desktop',
+  'ending-mobile',
+  'scene-allocation',
+  'scene-investigation',
+  'scene-redesign',
+  'perspective-applicant',
+  'perspective-newcomer',
+  'perspective-organizer',
+  'perspective-guide',
+  'clue-access',
+  'clue-experience',
+  'clue-rules',
+  'clue-explanation',
+  'badge-perspective',
+  'badge-evidence',
+  'badge-revision',
+]);
+
+const FALLBACK: Partial<Record<ImageId, ImageId>> = {
+  'ai-kiosk': 'scene-allocation',
+  'appeal-morning': 'scene-investigation',
+  'announcement-board': 'scene-allocation',
+  'principle-fairness': 'badge-perspective',
+  'principle-transparency': 'badge-evidence',
 };
 
 export const ALT: Record<ImageId, string> = {
@@ -59,10 +101,27 @@ export const ALT: Record<ImageId, string> = {
   'badge-perspective': '같은 크기의 세 렌즈가 겹친 관점 발견 배지.',
   'badge-evidence': '자료 폴더와 돋보기로 표현한 근거 확인 배지.',
   'badge-revision': '서로 맞물린 조각으로 표현한 규칙 수정 배지.',
+  'ai-kiosk': '여섯 개의 빈 체험권 칸이 빛나는 AI 배정기와 그 앞에 선 위원회 학생들.',
+  'appeal-morning': '다음 날 아침, 위원회 책상 위에 놓인 세 통의 편지.',
+  'announcement-board': '체험권 결과가 붙은 게시판 앞에 모인 신청자들.',
+  'principle-fairness': '공정성·포용성 원칙 배지.',
+  'principle-transparency': '투명성 원칙 배지.',
 };
 
-export const imgSrc = (id: ImageId, width?: number) => `/images/festival/${id}-${width ?? WIDTHS[id][0]}.webp`;
-export const imgSrcSet = (id: ImageId) => WIDTHS[id].map((w) => `${imgSrc(id, w)} ${w}w`).join(', ');
+const resolve = (id: ImageId): ImageId => (PROVIDED.has(id) ? id : (FALLBACK[id] ?? id));
+export const hasImage = (id: ImageId) => PROVIDED.has(id);
+export const imgSrc = (id: ImageId, width?: number) => {
+  const real = resolve(id);
+  return `/images/festival/${real}-${width ?? WIDTHS[real][0]}.webp`;
+};
+export const imgSrcSet = (id: ImageId) => {
+  const real = resolve(id);
+  return WIDTHS[real].map((w) => `${imgSrc(real, w)} ${w}w`).join(', ');
+};
+
+/** 신청자 초상(선택 자산). 아직 없으면 null → 이름 머리글자 아바타로 표시 */
+const PORTRAITS = new Set<string>([]);
+export const portraitSrc = (applicantId: string) => (PORTRAITS.has(applicantId) ? `/images/festival/applicant-${applicantId}-320.webp` : null);
 
 const preloaded = new Set<string>();
 /** 다음 장면 자산 미리 읽기 */

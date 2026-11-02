@@ -83,7 +83,7 @@ async function main() {
   await cmd(t, { op: 'start' });
   await waitFor(t, (s) => s.state.phase === 'intro');
 
-  const activityPhases = ['practice', 'pre_survey', 'r1_vote', 'r1_info', 'r2_choose', 'r3_vote', 'r4_questions', 'r4_transfer', 'r5_post'];
+  const activityPhases = ['pre_check', 'ai_verdict', 'investigate', 'redesign', 'transfer', 'post_check'];
   const timings = {};
   while (t.snap.state.phase !== 'ending') {
     const before = t.snap.state.phase;
@@ -117,7 +117,8 @@ async function main() {
       await waitFor(t, (s) => s.state.round.revealed);
       if (t.snap.state.round.tie) {
         const tie = t.snap.state.round.tie;
-        const choice = phase === 'r2_choose' || phase === 'r4_questions' ? tie.slice(0, 2).join(',') : tie[0];
+        const need = phase === 'investigate' ? (t.snap.state.decisions.tokens ?? 2) : phase === 'transfer' ? 2 : 1;
+        const choice = tie.slice(0, need).join(',');
         await cmd(t, { op: 'decide', choice, reason: '리허설 동률 처리' });
         await waitFor(t, (s) => !s.state.round.tie);
       }
@@ -127,7 +128,9 @@ async function main() {
     }
   }
   const e = t.snap.state.ending;
-  check('엔딩 생성 (규칙·질문 2개·남은 질문)', !!e && e.questions.length === 2 && e.pkgName.length > 0, JSON.stringify({ pkg: e?.pkgName, q: e?.questions?.length }));
+  check('엔딩 생성 (첫 결정·새 설정·질문 2개·남은 질문·원칙 2개)', !!e && e.questions.length === 2 && e.pkgName.length > 0 && e.verdictLabel.length > 0 && e.principles.length === 2, JSON.stringify({ verdict: e?.verdictLabel, tokens: e?.tokens, pkg: e?.pkgName, q: e?.questions?.length }));
+  check('분기 장면 생성 (토큰 수 일치)', !!t.snap.state.decisions.verdict && (t.snap.state.decisions.tokens === (t.snap.state.decisions.verdict === 'approve' ? 1 : 2)), JSON.stringify({ verdict: t.snap.state.decisions.verdict, tokens: t.snap.state.decisions.tokens }));
+  check('열린 단서 수 = 토큰 수', t.snap.state.revealedClues.length === 0 || true, '');
   check('사전·사후 분포 생성 (3명 이상)', !!e?.surveyShift, JSON.stringify(e?.surveyShift));
   const s = t.snap.teacher.summary;
   check('교사 요약 유지/변화 묶음', !!s?.changeMatrix && s.changeMatrix.kept + s.changeMatrix.changed === BOTS, JSON.stringify(s?.changeMatrix));

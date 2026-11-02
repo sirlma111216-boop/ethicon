@@ -145,3 +145,16 @@ describe('집계', () => {
     expect(surveyShift(['always', 'always', 'depends'], ['depends', 'depends', 'depends'])).not.toBeNull();
   });
 });
+
+describe('개편 분기 전제', () => {
+  it('승인 분기의 편지 쓴 신청자는 AI 기본 설정(선착순)에서 모두 대기 명단이다', async () => {
+    const { VERDICT_SCENES } = await import('../../src/worker/secretContent');
+    for (const seed of ['a', 'b', 'c', 'd', 'e']) {
+      const r = r1Allocation('first', makeLottery(seed));
+      for (const l of VERDICT_SCENES.approve.letters) expect(r.waiting).toContain(l.applicantId);
+    }
+    expect(VERDICT_SCENES.approve.tokens).toBe(1);
+    expect(VERDICT_SCENES.investigate.tokens).toBe(2);
+    expect(VERDICT_SCENES.reject.tokens).toBe(2);
+  });
+});

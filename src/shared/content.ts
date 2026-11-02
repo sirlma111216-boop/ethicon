@@ -1,6 +1,6 @@
 // 공개 콘텐츠: 학생·공개 화면에서 언제든 보여도 되는 내용만 둔다.
 // 미공개 단서·인물 반응·교사 메모는 src/worker/secretContent.ts 에 있다.
-import type { ClueId, PackageId, PerspectiveId, Phase, PolicyId, SurveyChoice } from './types';
+import type { CheckChoice, ClueId, PackageId, PerspectiveId, Phase, PolicyId, VerdictChoice } from './types';
 
 export const CAPACITY = 6;
 export const MAX_STUDENTS = 40;
@@ -9,6 +9,18 @@ export const FREE_TEXT_MAX = 80;
 export const APP_TITLE = '축제의 빈자리';
 export const APP_SUBTITLE = '우리 반이 바꾸는 AI의 선택';
 export const SIMULATION_NOTICE = '실제 사람을 평가하지 않는 가상 AI 배정 실험입니다. 신청자와 자료는 모두 지어낸 것입니다.';
+
+/** 이야기 속 AI. 학습된 모델이 아니라 정해진 식을 계산하는 교육용 시뮬레이터라는 점을 화면에 명시한다. */
+export const AI_AGENT = {
+  name: 'AI 배정기',
+  tagline: '축제 운영팀이 올해 처음 도입한 자동 배정 프로그램',
+  dataUsed: ['신청 시각', '이전 축제 부스 참여 횟수', '신청서의 관심도(1~3)'],
+  defaultRule: '신청 시각이 빠른 순서 (기본 설정)',
+  defaultRuleId: 'first' as PolicyId,
+  verdictLine: '신청 시각이 빠른 6명을 추천합니다. 동점은 추첨 순서로 정했습니다.',
+  unknownHint: 'AI 배정기가 확인하지 않은 것이 있을까요? 조사해 보기 전에는 알 수 없어요.',
+  disclaimer: '이 AI 배정기는 정해진 식을 계산하는 교육용 시뮬레이터예요. 실제 AI는 훨씬 복잡한 자료를 쓰지만, 기준·자료·한계를 묻는 질문은 똑같이 필요해요.',
+};
 
 /** 가상 신청자 공개 정보 — 모두 가상 인물. 성별·외모를 고정하지 않는 중성적 이름을 쓴다. */
 export interface Applicant {
@@ -44,6 +56,7 @@ export const applicantById = (id: string): Applicant => {
   if (!a) throw new Error(`unknown applicant ${id}`);
   return a;
 };
+export const applyTime = (a: Applicant) => `12:${String(30 + a.applyMinute).padStart(2, '0')}`;
 
 export interface PolicyInfo {
   id: PolicyId;
@@ -54,6 +67,7 @@ export interface PolicyInfo {
   cost: string;
 }
 
+/** 배정 규칙 3종. AI 배정기 기본 설정은 '선착순'. 나머지는 패키지 안에서 조합된다. */
 export const POLICIES: PolicyInfo[] = [
   {
     id: 'first',
@@ -94,54 +108,58 @@ export interface PackageInfo {
   explanationMinutes: number;
   publishes: string[];
   remainingProblem: string;
+  /** AI 배정기가 결과와 함께 출력하는 설명문(투명성 수준이 다르다) */
+  aiPrintout: string;
 }
 
 export const PACKAGES: PackageInfo[] = [
   {
     id: 'keep',
-    name: '지금 규칙 그대로',
+    name: 'AI 추천 그대로',
     kind: '기존 규칙 유지',
-    criteria: '1라운드에서 고른 규칙을 그대로 적용해요.',
+    criteria: 'AI 배정기 기본 설정(신청 시각 순)을 그대로 둬요.',
     explanation: '결과만 알려 줘요. "선정" 또는 "미선정".',
     appeal: '이의 제기 없음.',
     explanationMinutes: 2,
     publishes: ['선정 여부'],
     remainingProblem: '왜 떨어졌는지 아무도 모른 채 끝나요.',
+    aiPrintout: '선정 6명 / 미선정 6명. (기준·동점 처리는 공개하지 않음)',
   },
   {
     id: 'open',
-    name: '같은 규칙 + 기준 공개',
+    name: 'AI 추천 그대로 + 기준 공개',
     kind: '일부 보완',
-    criteria: '1라운드 규칙을 그대로 적용해요.',
+    criteria: 'AI 배정기 기본 설정을 그대로 두되, 계산 과정을 모두 공개해요.',
     explanation: '어떤 기준으로 계산했는지, 동점은 어떻게 정했는지 모두에게 알려 줘요.',
     appeal: '하루 동안 질문·이의 제기 창구를 열어요.',
     explanationMinutes: 6,
     publishes: ['선정 여부', '계산 기준', '동점 처리 방식', '질문 창구'],
     remainingProblem: '설명은 늘었지만 자리는 하나도 바뀌지 않았어요.',
+    aiPrintout: '선정 6명 / 미선정 6명. 기준: 신청 시각 순. 동점: 이 방의 추첨 순서(공개). 질문 창구: 1일.',
   },
   {
     id: 'access',
-    name: '같은 규칙 + 신청 기회 보정 + 첫 참여 2자리',
+    name: '신청 기회 보정 + 첫 참여 2자리',
     kind: '일부 보완',
-    criteria:
-      '신청 창구를 온라인과 종이 2개로 늘린 것으로 보고, 늦게 열린 사람의 시각을 보정해 1라운드 규칙으로 4자리를 정해요. 나머지 2자리는 처음 참여하는 사람 중 추첨.',
+    criteria: '신청 창구를 온라인·종이 2개로 늘린 것으로 보고, 늦게 열린 사람의 시각을 보정해 신청 시각 순으로 4자리를 정해요. 나머지 2자리는 처음 참여하는 사람 중 추첨.',
     explanation: '계산 기준과 보정 이유를 알려 줘요. 개인 사정은 "신청 기회가 늦게 열림"으로만 표시해요.',
     appeal: '하루 동안 이의 제기 창구를 열어요.',
     explanationMinutes: 8,
     publishes: ['선정 여부', '계산 기준', '보정 적용 여부', '추첨 순서', '이의 제기 창구'],
     remainingProblem: '어떤 사정을 "보정"으로 인정할지 누가 정할까요?',
+    aiPrintout: '선정 6명 / 미선정 6명. 기준: 보정한 신청 시각 순 4자리 + 첫 참여 추첨 2자리. 보정 적용: 신청 기회가 늦게 열린 신청자(사유 비공개). 추첨 순서 공개. 이의 제기: 1일.',
   },
   {
     id: 'mix',
     name: '첫 참여 3자리 + 경험자 3자리',
     kind: '새로운 조합',
-    criteria:
-      '보정한 신청 시각순으로 처음 참여하는 사람 3명, 경험 점수순으로 경험자 3명(진행 도우미 역할)을 뽑아요.',
+    criteria: '보정한 신청 시각순으로 처음 참여하는 사람 3명, 경험 점수순으로 경험자 3명(진행 도우미 역할)을 뽑아요.',
     explanation: '두 트랙의 기준을 모두 알려 주되, 개인 사정은 본인에게만 설명해요.',
     appeal: '하루 동안 이의 제기 창구를 열고, 대기자에게 다음 기회를 안내해요.',
     explanationMinutes: 10,
     publishes: ['선정 여부', '두 트랙의 기준', '추첨 순서', '이의 제기 창구', '대기 순번'],
     remainingProblem: '설명과 이의 제기에 시간이 가장 많이 들어요. 축제 당일에 가능할까요?',
+    aiPrintout: '선정 6명 / 미선정 6명. 트랙 A: 첫 참여, 보정한 신청 시각 순 3자리. 트랙 B: 경험 점수 순 3자리(진행 도우미). 추첨 순서 공개. 개인 사정은 본인에게만 설명. 이의 제기 1일 + 대기 순번 안내.',
   },
 ];
 
@@ -156,34 +174,10 @@ export interface ClueMeta {
 }
 
 export const CLUES: ClueMeta[] = [
-  {
-    id: 'access',
-    title: '신청 기회의 차이',
-    question: '모두가 같은 시간에 신청할 수 있었을까?',
-    image: 'clue-access',
-    alt: '같은 신청 부스로 향하지만 길이와 접근 조건이 다른 두 경로.',
-  },
-  {
-    id: 'experience',
-    title: '경험 점수의 의미',
-    question: '경험 점수는 무엇을 세는 걸까?',
-    image: 'clue-experience',
-    alt: '활동 배지가 든 보관함과 비어 있는 같은 모양의 보관함.',
-  },
-  {
-    id: 'rules',
-    title: '추천 기준과 동점 처리',
-    question: 'AI 추천은 어떻게 계산됐고 동점은 어떻게 정했을까?',
-    image: 'clue-rules',
-    alt: '내부 연결 구조가 보이는 투명한 배정 기계와 동점 추첨용 조각 주머니.',
-  },
-  {
-    id: 'explanation',
-    title: '결과를 전달하는 설명 방식',
-    question: '떨어진 사람은 무엇을 들었을까?',
-    image: 'clue-explanation',
-    alt: '판단 경로를 보여주는 투명 패널과 닫힌 개인 정보 봉투.',
-  },
+  { id: 'access', title: '신청 기회의 차이', question: '모두가 같은 시간에 신청할 수 있었을까?', image: 'clue-access', alt: '같은 신청 부스로 향하지만 길이와 접근 조건이 다른 두 경로.' },
+  { id: 'experience', title: '경험 점수의 의미', question: '경험 점수는 무엇을 세는 걸까?', image: 'clue-experience', alt: '활동 배지가 든 보관함과 비어 있는 같은 모양의 보관함.' },
+  { id: 'rules', title: 'AI가 쓴 기준과 동점 처리', question: 'AI 배정기는 어떻게 계산했고 동점은 어떻게 정했을까?', image: 'clue-rules', alt: '내부 연결 구조가 보이는 투명한 배정 기계와 동점 추첨용 조각 주머니.' },
+  { id: 'explanation', title: '떨어진 사람이 들은 말', question: '떨어진 사람은 무엇을 들었을까?', image: 'clue-explanation', alt: '판단 경로를 보여주는 투명 패널과 닫힌 개인 정보 봉투.' },
 ];
 
 export const clueById = (id: ClueId): ClueMeta => CLUES.find((c) => c.id === id)!;
@@ -203,7 +197,7 @@ export const PERSPECTIVES: PerspectiveInfo[] = [
     name: '신청자',
     image: 'perspective-applicant',
     alt: '빈 신청 카드를 들고 생각하는 민트색 재킷의 학생.',
-    prompt: '당신은 신청자예요. 결과를 받았을 때 가장 먼저 알고 싶은 것은 무엇인가요?',
+    prompt: '당신은 신청자예요. 결과를 받았을 때 가장 먼저 알고 싶은 것은?',
     tags: [
       { id: 'why', label: '내가 왜 안 됐는지 알고 싶다' },
       { id: 'fair_time', label: '먼저 신청한 사람이 되는 게 맞다' },
@@ -250,23 +244,21 @@ export const PERSPECTIVES: PerspectiveInfo[] = [
 
 export const perspectiveById = (id: PerspectiveId): PerspectiveInfo => PERSPECTIVES.find((p) => p.id === id)!;
 
-export const SURVEY_QUESTION = '모두에게 같은 규칙을 적용하면 늘 공정할까?';
-export const SURVEY_OPTIONS: { id: SurveyChoice; label: string }[] = [
-  { id: 'always', label: '늘 공정하다. 규칙이 같으면 된다.' },
-  { id: 'mostly', label: '대체로 공정하지만 예외가 있을 것 같다.' },
-  { id: 'depends', label: '출발 조건이 다르면 같은 규칙도 불공정할 수 있다.' },
-  { id: 'unsure', label: '아직 모르겠다.' },
+/** 결정 1·6: 사전·사후 판단 (한 번 탭) */
+export const CHECK_QUESTION = 'AI 배정기가 자료대로 계산해서 6명을 뽑으면, 그 결과는 공정할까?';
+export const CHECK_OPTIONS: { id: CheckChoice; label: string; desc: string }[] = [
+  { id: 'yes', label: '공정하다', desc: '같은 자료, 같은 식으로 계산했으니까.' },
+  { id: 'no', label: '공정하지 않을 수 있다', desc: '자료에 안 잡히는 사정이 있을 수 있으니까.' },
+  { id: 'unsure', label: '아직 모르겠다', desc: '더 알아봐야 판단할 수 있을 것 같다.' },
 ];
 
-export const PRACTICE_QUESTION = '연습: 축제에서 제일 먼저 가 보고 싶은 곳은?';
-export const PRACTICE_OPTIONS = [
-  { id: 'booth', label: '체험 부스' },
-  { id: 'food', label: '먹거리 장터' },
-  { id: 'stage', label: '공연 무대' },
-  { id: 'unsure', label: '아직 모르겠다' },
+/** 결정 2: AI 추천 처리 */
+export const VERDICT_QUESTION = 'AI 배정기의 추천, 우리 위원회는 어떻게 할까?';
+export const VERDICT_OPTIONS: { id: VerdictChoice; label: string; desc: string; consequence: string }[] = [
+  { id: 'approve', label: '이대로 승인', desc: '지금 바로 6명을 발표한다.', consequence: '빠르지만, 확인하지 않은 채 결정하는 셈이에요.' },
+  { id: 'investigate', label: '보류하고 조사', desc: '발표를 미루고 조사 토큰 2개로 확인한 뒤 결정한다.', consequence: '하루가 더 걸리고, 운영자가 기다려야 해요.' },
+  { id: 'reject', label: '거부하고 규칙부터', desc: 'AI 추천을 쓰지 않고 규칙을 새로 정한다.', consequence: '지금은 거부할 근거가 없어요. 운영자가 이유를 물을 거예요.' },
 ];
-
-export const INFO_QUESTION = '배정 결과를 보고 나니, 추가로 알아야 할 정보는 무엇인가요?';
 
 export const QUESTION_CANDIDATES: { id: string; text: string }[] = [
   { id: 'q_criteria', text: '이 결정은 어떤 기준으로 계산했나요?' },
@@ -277,64 +269,72 @@ export const QUESTION_CANDIDATES: { id: string; text: string }[] = [
   { id: 'q_limits', text: '이 AI가 모르는 것, 틀릴 수 있는 것은 무엇인가요?' },
 ];
 
+/** 결정 5: 다른 상황에 적용 — 먼저 물어볼 질문을 고르면 상위 2개가 공동 약속이 된다 */
 export const TRANSFER_SCENARIO = {
   title: '다른 상황: 동아리 체험 자리',
   story:
-    '과학 동아리가 체험 자리 8개에 신청자 20명을 받았어요. 동아리 앱이 "지난 학기 활동 출석률"과 "신청 순서"로 8명을 추천했어요. 담당 선생님이 우리 위원회에 물어요. "이대로 발표해도 될까요?"',
-  question: '우리가 가장 먼저 확인할 것은?',
-  options: [
-    { id: 't_attendance', label: '출석률을 못 채운 사람에게 그럴 수밖에 없던 사정이 있었는지' },
-    { id: 't_rule', label: '출석률과 신청 순서를 어떤 비율로 섞었는지' },
-    { id: 't_explain', label: '떨어진 12명에게 무엇을 어떻게 설명할 건지' },
-    { id: 't_appeal', label: '결과에 이의를 말할 창구가 있는지' },
-    { id: 'abstain', label: '아직 모르겠다 / 판단 보류' },
-  ],
+    '과학 동아리가 체험 자리 8개에 신청자 20명을 받았어요. 동아리 앱의 AI가 "지난 학기 활동 출석률"과 "신청 순서"로 8명을 추천했어요. 담당 선생님이 우리 위원회에 물어요. "이대로 발표해도 될까요?"',
+  question: '이 AI에게 우리 위원회가 가장 먼저 물어볼 질문은?',
 };
+
+/** 엔딩에서 체험을 공식 원칙 이름에 연결한다. official 은 공식 원문 요지, student 는 학생용 풀이. */
+export const PRINCIPLES = [
+  {
+    id: 'fairness' as const,
+    name: '공정성·포용성',
+    official: 'AI의 개발·활용 과정에서 부당한 편향과 차별을 줄이고, 다양한 사람이 혜택과 기회에 접근하며 의사결정에 참여하도록 한다.',
+    student: '같은 규칙이라도 출발선이 다르면 누군가는 처음부터 불리해질 수 있어요. 그 사람도 기회와 결정에 끼게 하는 것.',
+  },
+  {
+    id: 'transparency' as const,
+    name: '투명성',
+    official: 'AI 사용 사실, 판단 기준, 한계와 위험을 이해하기 쉽게 알린다.',
+    student: 'AI가 어떤 자료와 기준으로 정했는지, 무엇을 모르는지, 떨어진 사람이 이유를 들을 수 있는지.',
+  },
+];
 
 export interface PhaseMeta {
   id: Phase;
   title: string;
   minuteMark: string;
-  studentHint: string;
-  /** 제출 활동이 있는 단계인지 */
+  /** 학생 화면 상단 "할 일" 한 줄. 활동이 없으면 보기만 한다고 적는다 */
+  task: string;
   activity: boolean;
   defaultSeconds: number | null;
-  scene: 'intro' | 'allocation' | 'investigation' | 'redesign' | 'ending' | 'none';
+  scene: 'intro' | 'ai' | 'verdict' | 'investigation' | 'redesign' | 'ending' | 'none';
+  /** 교사용 진행 도식에서 보이는 결정 번호 */
+  decisionNo?: number;
 }
 
 export const PHASE_META: PhaseMeta[] = [
-  { id: 'lobby', title: '입장 대기', minuteMark: '0~3분', studentHint: '선생님이 시작할 때까지 기다려요.', activity: false, defaultSeconds: null, scene: 'intro' },
-  { id: 'intro', title: '축제의 빈자리', minuteMark: '3~5분', studentHint: '이야기를 함께 읽어요.', activity: false, defaultSeconds: null, scene: 'intro' },
-  { id: 'practice', title: '연습 선택', minuteMark: '5~6분', studentHint: '제출·대기·공개를 연습해요.', activity: true, defaultSeconds: 60, scene: 'intro' },
-  { id: 'pre_survey', title: '사전 판단', minuteMark: '6~7분', studentHint: '지금 생각을 솔직하게 기록해요. 정답은 없어요.', activity: true, defaultSeconds: 120, scene: 'intro' },
-  { id: 'r1_vote', title: '라운드 1 · 첫 배정 규칙 정하기', minuteMark: '7~10분', studentHint: '세 규칙 중 하나를 비밀 투표해요.', activity: true, defaultSeconds: 120, scene: 'allocation' },
-  { id: 'r1_result', title: '라운드 1 · 배정 결과', minuteMark: '10~13분', studentHint: '누가 들어오고 누가 남았는지 살펴봐요.', activity: false, defaultSeconds: null, scene: 'allocation' },
-  { id: 'r1_info', title: '라운드 1 · 더 알아야 할 정보', minuteMark: '13~15분', studentHint: '결과를 보고 나니 무엇이 궁금한가요?', activity: true, defaultSeconds: 60, scene: 'allocation' },
-  { id: 'r2_choose', title: '라운드 2 · 조사 카드 고르기', minuteMark: '15~20분', studentHint: '관점 카드로 생각하며 조사 카드 2장을 골라요.', activity: true, defaultSeconds: 180, scene: 'investigation' },
-  { id: 'r2_reveal', title: '라운드 2 · 단서 공개', minuteMark: '20~25분', studentHint: '학급이 고른 단서와 관점 보드를 살펴봐요.', activity: false, defaultSeconds: null, scene: 'investigation' },
-  { id: 'r3_vote', title: '라운드 3 · 규칙 다시 설계', minuteMark: '25~30분', studentHint: '완결된 패키지 중 하나를 골라요.', activity: true, defaultSeconds: 150, scene: 'redesign' },
-  { id: 'r3_result', title: '라운드 3 · 이전과 이후', minuteMark: '30~35분', studentHint: '바뀐 규칙이 같은 신청자들에게 어떤 결과를 내는지 비교해요.', activity: false, defaultSeconds: null, scene: 'redesign' },
-  { id: 'r4_questions', title: '공동 약속 · 먼저 물어볼 질문', minuteMark: '35~38분', studentHint: 'AI 결정을 받으면 먼저 물어볼 질문 2개를 골라요.', activity: true, defaultSeconds: 90, scene: 'redesign' },
-  { id: 'r4_transfer', title: '다른 상황에 적용하기', minuteMark: '38~40분', studentHint: '새 상황에서 가장 먼저 확인할 것을 골라요.', activity: true, defaultSeconds: 90, scene: 'redesign' },
-  { id: 'r5_post', title: '개인 성찰', minuteMark: '40~43분', studentHint: '처음 질문에 다시 답하고 이유를 한 문장으로 적어요.', activity: true, defaultSeconds: 150, scene: 'ending' },
-  { id: 'ending', title: '우리의 기준은 이렇게 달라졌다', minuteMark: '43~45분', studentHint: '학급의 결정과 질문을 함께 봐요.', activity: false, defaultSeconds: null, scene: 'ending' },
-  { id: 'closed', title: '수업 종료', minuteMark: '', studentHint: '수고했어요. 방은 곧 정리돼요.', activity: false, defaultSeconds: null, scene: 'ending' },
+  { id: 'lobby', title: '입장 대기', minuteMark: '0~3분', task: '선생님이 시작할 때까지 기다려요.', activity: false, defaultSeconds: null, scene: 'intro' },
+  { id: 'intro', title: '축제의 빈자리', minuteMark: '3~7분', task: '이야기와 신청자 12명, AI 배정기를 함께 읽어요. 누를 것은 없어요.', activity: false, defaultSeconds: null, scene: 'intro' },
+  { id: 'pre_check', title: '결정 1 · 지금 내 생각', minuteMark: '7~8분', task: '세 가지 중 하나를 고르고 제출하기를 누르세요. (1개 선택)', activity: true, defaultSeconds: 60, scene: 'ai', decisionNo: 1 },
+  { id: 'ai_verdict', title: '결정 2 · AI 추천을 어떻게 할까', minuteMark: '8~13분', task: 'AI 배정기의 추천을 읽고, 승인·보류·거부 중 하나를 골라 제출하세요. (1개 선택)', activity: true, defaultSeconds: 150, scene: 'ai', decisionNo: 2 },
+  { id: 'verdict_result', title: '우리 결정의 결과', minuteMark: '13~16분', task: '우리 반의 결정으로 무슨 일이 생겼는지 봐요. 누를 것은 없어요.', activity: false, defaultSeconds: null, scene: 'verdict' },
+  { id: 'investigate', title: '결정 3 · 무엇부터 조사할까', minuteMark: '16~22분', task: '조사 토큰 수만큼 카드를 고르고, 내 관점 카드의 한마디를 하나 고른 뒤 제출하세요.', activity: true, defaultSeconds: 180, scene: 'investigation', decisionNo: 3 },
+  { id: 'investigate_reveal', title: '단서 공개', minuteMark: '22~27분', task: '열린 단서와 떨어진 사람의 말, 관점 보드를 함께 봐요. 누를 것은 없어요.', activity: false, defaultSeconds: null, scene: 'investigation' },
+  { id: 'redesign', title: '결정 4 · 규칙을 어떻게 바꿀까', minuteMark: '27~32분', task: '네 가지 묶음 중 하나를 골라 제출하세요. (1개 선택)', activity: true, defaultSeconds: 150, scene: 'redesign', decisionNo: 4 },
+  { id: 'redesign_result', title: 'AI 배정기 다시 돌리기', minuteMark: '32~36분', task: '새 규칙으로 다시 계산한 결과와 AI의 설명문을 봐요. 누를 것은 없어요.', activity: false, defaultSeconds: null, scene: 'redesign' },
+  { id: 'transfer', title: '결정 5 · 다른 AI에게 먼저 물어볼 것', minuteMark: '36~40분', task: '새 상황을 읽고, 먼저 물어볼 질문 하나를 골라 제출하세요. 많이 고른 2개가 우리 반의 약속이 돼요.', activity: true, defaultSeconds: 90, scene: 'redesign', decisionNo: 5 },
+  { id: 'post_check', title: '결정 6 · 다시, 내 생각', minuteMark: '40~43분', task: '처음 질문에 다시 답하고 제출하세요. 이유는 적어도 되고 안 적어도 돼요.', activity: true, defaultSeconds: 120, scene: 'ending', decisionNo: 6 },
+  { id: 'ending', title: '우리의 기준은 이렇게 달라졌다', minuteMark: '43~45분', task: '우리 반이 바꾼 것과 남긴 질문을 함께 봐요.', activity: false, defaultSeconds: null, scene: 'ending' },
+  { id: 'closed', title: '수업 종료', minuteMark: '', task: '수고했어요. 방은 곧 정리돼요.', activity: false, defaultSeconds: null, scene: 'ending' },
 ];
 
 export const phaseMeta = (p: Phase): PhaseMeta => PHASE_META.find((m) => m.id === p)!;
 export const phaseIndex = (p: Phase): number => PHASE_META.findIndex((m) => m.id === p);
+/** 학생에게 보이는 장면 수(대기·종료 제외) */
+export const SCENE_COUNT = PHASE_META.length - 2;
 
 /** 단계별 제출 payload 종류 */
 export const PHASE_KIND: Partial<Record<Phase, string>> = {
-  practice: 'practice',
-  pre_survey: 'survey',
-  r1_vote: 'policy',
-  r1_info: 'info',
-  r2_choose: 'investigate',
-  r3_vote: 'package',
-  r4_questions: 'questions',
-  r4_transfer: 'transfer',
-  r5_post: 'post',
+  pre_check: 'precheck',
+  ai_verdict: 'verdict',
+  investigate: 'investigate',
+  redesign: 'package',
+  transfer: 'transfer',
+  post_check: 'postcheck',
 };
 
 /** 가명 생성 재료 — 평가적 의미가 없는 중립 단어 */
@@ -345,6 +345,6 @@ export const AVATAR_EMOJI = ['🦦', '🐋', '🐧', '🦊', '🦉', '🐢', '�
 export const ANONYMITY_NOTICE = [
   '본명·학번·이메일·학교·전화번호는 입력받지 않아요. 서버가 임의 가명을 만들어 줘요.',
   '가명은 내 접속을 구분하는 용도예요. 가명과 답변을 묶어 공동 화면에 보여 주지 않아요.',
-  '개인 투표와 짧은 이유는 선생님이 즉시 삭제할 수 있고, 늦어도 24시간 뒤 자동 삭제돼요.',
+  '개인 선택과 짧은 이유는 선생님이 즉시 삭제할 수 있고, 늦어도 24시간 뒤 자동 삭제돼요.',
   '"완전한 익명"을 약속하지는 않아요. 접속을 유지하기 위한 세션 식별자와 서비스 운영에 필요한 기술 정보(접속 시각 등)는 남을 수 있어요.',
 ];

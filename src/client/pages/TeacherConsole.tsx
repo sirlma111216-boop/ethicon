@@ -1,20 +1,19 @@
 // 교사 진행 화면: 진행 권한은 서버가 검증한다. 이 화면은 명령을 보내고 집계만 본다.
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
-import { CLUES, PACKAGES, PHASE_META, POLICIES, QUESTION_CANDIDATES, phaseIndex, phaseMeta } from '../../shared/content';
+import { CLUES, PACKAGES, PHASE_META, QUESTION_CANDIDATES, SCENE_COUNT, VERDICT_OPTIONS, phaseIndex, phaseMeta } from '../../shared/content';
 import type { Phase, TeacherCommandBody } from '../../shared/types';
-import { PhaseResult, surveyLabels } from '../components/ResultViews';
-import { ConnBanner, Modal, Scene, Timer, useToast } from '../components/ui';
+import { checkLabels } from '../components/ResultViews';
+import { PREVIEW_ME, SCENE_IMAGE, StudentBody, TaskStrip } from '../components/StudentBody';
+import { ConnBanner, Modal, Scene, Timer, useMediaQuery, useToast } from '../components/ui';
 import { useAudioDirector } from '../hooks/useAudioDirector';
 import { useRemaining } from '../hooks/useTimer';
 import { useRoom } from '../hooks/useRoom';
 import { api } from '../lib/api';
 import { audio, type AudioPrefs } from '../lib/audio';
-import type { ImageId } from '../lib/images';
 import { navigate } from '../lib/router';
 import { teacherStore } from '../lib/storage';
 
-const SCENE_IMAGE: Record<string, ImageId> = { intro: 'intro-desktop', allocation: 'scene-allocation', investigation: 'scene-investigation', redesign: 'scene-redesign', ending: 'ending-desktop' };
 
 export function TeacherConsole({ code }: { code: string }) {
   const creds = useMemo(() => teacherStore.get(), []);
@@ -33,6 +32,7 @@ export function TeacherConsole({ code }: { code: string }) {
   const [audioState, setAudioState] = useState<AudioPrefs & { enabled: boolean; ducked: boolean }>({ ...audio.prefs, enabled: false, ducked: false });
   const remaining = useRemaining(state?.round, state?.paused ?? false, room.serverNow);
   const isSoundScreen = state?.soundScreen === 'teacher';
+  const portrait = useMediaQuery('(max-width: 767px) and (orientation: portrait)');
   useAudioDirector(state, !!isSoundScreen && audioState.enabled, remaining);
 
   const joinUrl = `${location.origin}/join/${code}`;
@@ -146,10 +146,10 @@ export function TeacherConsole({ code }: { code: string }) {
 
           <Scene image={SCENE_IMAGE[meta.scene] ?? 'scene-allocation'}>
             <p className="eyebrow">
-              {meta.minuteMark} · 장면 {idx}/{PHASE_META.length - 2}
+              {meta.minuteMark} · 장면 {idx}/{SCENE_COUNT}
             </p>
             <h1 className="h1">{meta.title}</h1>
-            <p style={{ color: 'var(--ink-dim)' }}>{meta.studentHint}</p>
+            <p style={{ color: 'var(--ink-dim)' }}>{meta.task}</p>
           </Scene>
 
           {/* 진행 제어 */}
@@ -206,12 +206,12 @@ export function TeacherConsole({ code }: { code: string }) {
                     {round.tie && round.tie.length > 1 ? '30초 재투표 (동률 항목만)' : '다시 투표 (새 라운드)'}
                   </button>
                 )}
-                {(needsDecision || (round.revealed && ['r1_vote', 'r2_choose', 'r3_vote', 'r4_questions'].includes(state.phase) && !decisionDone(state))) && (
+                {(needsDecision || (round.revealed && ['ai_verdict', 'investigate', 'redesign', 'transfer'].includes(state.phase) && !decisionDone(state))) && (
                   <button className="btn white" onClick={() => setDecideOpen(true)}>
                     교사 결정 (이유 기록)
                   </button>
                 )}
-                {!round.revealed && !['r1_vote', 'r2_choose', 'r3_vote', 'r4_questions'].includes(state.phase) && (
+                {!round.revealed && !['ai_verdict', 'investigate', 'redesign', 'transfer'].includes(state.phase) && (
                   <button className="btn outline" onClick={() => run({ op: 'skip', reason: '응답 없음 또는 시간 부족' })}>
                     활동 건너뛰기
                   </button>
@@ -225,9 +225,20 @@ export function TeacherConsole({ code }: { code: string }) {
             )}
           </div>
 
-          {/* 결과 미리보기 (공개된 것만) */}
-          {hasRound && round.revealed && <PhaseResult state={state} phase={state.phase} />}
-          {!hasRound && !['lobby', 'intro', 'ending', 'closed'].includes(state.phase) && <PhaseResult state={state} phase={state.phase} />}
+          {/* 학생이 지금 보는 화면 그대로 */}
+          <div className="preview-frame" aria-label="학생 화면 미리보기">
+            <div className="preview-head">
+              <div>
+                <p className="eyebrow" style={{ margin: 0 }}>학생 화면 · 지금 이렇게 보여요</p>
+                <p className="small muted" style={{ margin: 0 }}>실제 학생 화면과 같은 컴포넌트예요. 여기서 누른 선택은 제출되지 않아요.</p>
+              </div>
+              <span className="pill mint">결정 {meta.decisionNo ?? '-'} / 6</span>
+            </div>
+            <TaskStrip state={state} />
+            <div style={{ marginTop: 12 }}>
+              <StudentBody state={state} me={PREVIEW_ME} submit={async () => ({ ok: false, code: 'preview', message: '미리보기' })} portrait={portrait} preview />
+            </div>
+          </div>
           {(state.phase === 'ending' || state.phase === 'closed') && teacher.summary && <SummaryView summary={teacher.summary} exportUrl={api.exportUrl(code, creds.teacherToken)} />}
 
           {/* 발문·오개념 */}
@@ -430,7 +441,7 @@ export function TeacherConsole({ code }: { code: string }) {
         </aside>
       </main>
 
-      {decideOpen && <DecideModal phase={state.phase} tie={round.tie} onClose={() => setDecideOpen(false)} onDecide={async (choice, reason) => (await run({ op: 'decide', choice, reason })) && setDecideOpen(false)} />}
+      {decideOpen && <DecideModal phase={state.phase} tie={round.tie} tokens={state.decisions.tokens ?? 2} onClose={() => setDecideOpen(false)} onDecide={async (choice, reason) => (await run({ op: 'decide', choice, reason })) && setDecideOpen(false)} />}
       {confirm && (
         <Modal title={confirm === 'end' ? '수업을 종료할까요?' : '방 데이터를 삭제할까요?'} onClose={() => setConfirm(null)}>
           <p>{confirm === 'end' ? '학생 화면은 종료 안내로 바뀌고 새 입장은 막혀요. 데이터는 삭제 전까지 남아 있어요.' : '개인 투표·자유 응답·집계가 모두 즉시 삭제되고 모든 연결이 끊겨요. 되돌릴 수 없어요. 요약이 필요하면 먼저 내보내기를 하세요.'}</p>
@@ -460,13 +471,13 @@ export function TeacherConsole({ code }: { code: string }) {
 
 function decisionDone(state: NonNullable<ReturnType<typeof useRoom>['snap']>['state']): boolean {
   switch (state.phase) {
-    case 'r1_vote':
-      return !!state.decisions.policy;
-    case 'r2_choose':
+    case 'ai_verdict':
+      return !!state.decisions.verdict;
+    case 'investigate':
       return !!state.decisions.clues;
-    case 'r3_vote':
+    case 'redesign':
       return !!state.decisions.pkg;
-    case 'r4_questions':
+    case 'transfer':
       return !!state.decisions.questions;
     default:
       return true;
@@ -481,15 +492,16 @@ function kindLabel(kind: string): string {
   return ({ survey_reason: '사전 판단 이유', investigate_reason: '조사 이유', post_reason: '성찰 이유', post_change: '변화 메모' } as Record<string, string>)[kind] ?? kind;
 }
 
-function DecideModal({ phase, tie, onClose, onDecide }: { phase: Phase; tie: string[] | null; onClose: () => void; onDecide: (choice: string, reason: string) => void }) {
+function DecideModal({ phase, tie, tokens, onClose, onDecide }: { phase: Phase; tie: string[] | null; tokens: number; onClose: () => void; onDecide: (choice: string, reason: string) => void }) {
   const options: { id: string; label: string }[] =
-    phase === 'r1_vote' ? POLICIES.map((p) => ({ id: p.id, label: p.name })) : phase === 'r2_choose' ? CLUES.map((c) => ({ id: c.id, label: c.title })) : phase === 'r3_vote' ? PACKAGES.map((p) => ({ id: p.id, label: p.name })) : QUESTION_CANDIDATES.map((q) => ({ id: q.id, label: q.text }));
-  const multi = phase === 'r2_choose' || phase === 'r4_questions';
+    phase === 'ai_verdict' ? VERDICT_OPTIONS.map((o) => ({ id: o.id, label: o.label })) : phase === 'investigate' ? CLUES.map((c) => ({ id: c.id, label: c.title })) : phase === 'redesign' ? PACKAGES.map((p) => ({ id: p.id, label: p.name })) : QUESTION_CANDIDATES.map((q) => ({ id: q.id, label: q.text }));
+  const need = phase === 'investigate' ? tokens : phase === 'transfer' ? 2 : 1;
+  const multi = need > 1;
   const limited = tie && tie.length > 1 ? options.filter((o) => tie.includes(o.id)) : options;
   const [picks, setPicks] = useState<string[]>([]);
   const [reason, setReason] = useState('');
-  const toggle = (id: string) => setPicks((xs) => (multi ? (xs.includes(id) ? xs.filter((x) => x !== id) : [...xs.slice(-1), id]) : [id]));
-  const ready = (multi ? picks.length === 2 : picks.length === 1) && reason.trim().length > 0;
+  const toggle = (id: string) => setPicks((xs) => (multi ? (xs.includes(id) ? xs.filter((x) => x !== id) : [...xs.slice(-(need - 1)), id]) : [id]));
+  const ready = picks.length === need && reason.trim().length > 0;
   return (
     <Modal title="교사 결정" onClose={onClose}>
       <p className="small muted">학급 투표로 정해지지 않았을 때만 사용해요. 선택과 이유는 "교사 결정"으로 구분되어 공동 기록에 남고, 학생 다수결처럼 표시되지 않아요.</p>
@@ -508,7 +520,7 @@ function DecideModal({ phase, tie, onClose, onDecide }: { phase: Phase; tie: str
         <input className="input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} placeholder="예: 두 번 동률이라 시간 관계상 교사가 선택" />
       </label>
       <div className="row" style={{ marginTop: 12 }}>
-        <button className="btn" disabled={!ready} onClick={() => onDecide(multi ? picks.join(',') : picks[0]!, reason.trim())}>
+        <button className="btn" disabled={!ready} onClick={() => onDecide(picks.join(','), reason.trim())}>
           이 선택으로 결정
         </button>
         <button className="btn ghost" style={{ background: 'var(--paper-2)', color: 'var(--paper-ink)' }} onClick={onClose}>
@@ -530,23 +542,23 @@ function SummaryView({ summary, exportUrl }: { summary: NonNullable<NonNullable<
         </a>
       </div>
       <p style={{ margin: 0 }}>
-        참여 {s.joined}명 · 첫 규칙 {s.decisions.policy ? POLICIES.find((p) => p.id === s.decisions.policy)?.name : '—'}
-        {s.decisions.policyByTeacher && ' (교사 결정)'} · 새 규칙 {s.decisions.pkg ? PACKAGES.find((p) => p.id === s.decisions.pkg)?.name : '—'}
+        참여 {s.joined}명 · AI 추천 처리 {s.decisions.verdict ? VERDICT_OPTIONS.find((o) => o.id === s.decisions.verdict)?.label : '—'}
+        {s.decisions.verdictByTeacher && ' (교사 결정)'} · 조사 토큰 {s.decisions.tokens ?? '—'}개 · 새 설정 {s.decisions.pkg ? PACKAGES.find((p) => p.id === s.decisions.pkg)?.name : '—'}
         {s.decisions.pkgByTeacher && ' (교사 결정)'}
       </p>
       {s.surveyShift ? (
         <table className="plain">
           <thead>
             <tr>
-              <th>"같은 규칙이면 늘 공정할까?"</th>
+              <th>"자료대로 계산하면 공정할까?"</th>
               <th>사전 ({s.surveyShift.respondedBefore}명)</th>
               <th>사후 ({s.surveyShift.respondedAfter}명)</th>
             </tr>
           </thead>
           <tbody>
-            {Object.keys(surveyLabels).map((k) => (
+            {Object.keys(checkLabels).map((k) => (
               <tr key={k}>
-                <th scope="row">{surveyLabels[k]}</th>
+                <th scope="row">{checkLabels[k]}</th>
                 <td>{s.surveyShift!.before[k] ?? 0}</td>
                 <td>{s.surveyShift!.after[k] ?? 0}</td>
               </tr>
