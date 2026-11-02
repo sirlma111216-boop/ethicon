@@ -1,0 +1,146 @@
+[
+  {
+    "id": "intro-desktop",
+    "width": 1672,
+    "height": 941,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2205225
+  },
+  {
+    "id": "intro-mobile",
+    "width": 941,
+    "height": 1672,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2176973
+  },
+  {
+    "id": "ending-desktop",
+    "width": 1672,
+    "height": 941,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2467329
+  },
+  {
+    "id": "ending-mobile",
+    "width": 941,
+    "height": 1672,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2442716
+  },
+  {
+    "id": "scene-allocation",
+    "width": 1672,
+    "height": 941,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2289295
+  },
+  {
+    "id": "scene-investigation",
+    "width": 1672,
+    "height": 941,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2431071
+  },
+  {
+    "id": "scene-redesign",
+    "width": 1672,
+    "height": 941,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2364807
+  },
+  {
+    "id": "perspective-applicant",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2204278
+  },
+  {
+    "id": "perspective-newcomer",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 1941663
+  },
+  {
+    "id": "perspective-organizer",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2091165
+  },
+  {
+    "id": "perspective-guide",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 1995163
+  },
+  {
+    "id": "clue-access",
+    "width": 1448,
+    "height": 1086,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2636380
+  },
+  {
+    "id": "clue-experience",
+    "width": 1448,
+    "height": 1086,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2267331
+  },
+  {
+    "id": "clue-rules",
+    "width": 1448,
+    "height": 1086,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2362629
+  },
+  {
+    "id": "clue-explanation",
+    "width": 1448,
+    "height": 1086,
+    "pixelFormat": "Format24bppRgb",
+    "cornerAlpha": 255,
+    "bytes": 2122769
+  },
+  {
+    "id": "badge-perspective",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format32bppArgb",
+    "cornerAlpha": 0,
+    "bytes": 1798297
+  },
+  {
+    "id": "badge-evidence",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format32bppArgb",
+    "cornerAlpha": 0,
+    "bytes": 1771803
+  },
+  {
+    "id": "badge-revision",
+    "width": 1254,
+    "height": 1254,
+    "pixelFormat": "Format32bppArgb",
+    "cornerAlpha": 0,
+    "bytes": 1569097
+  }
+]

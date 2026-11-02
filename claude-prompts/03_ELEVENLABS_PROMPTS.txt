@@ -1,0 +1,81 @@
+ElevenLabs 음향 제작 프롬프트 — 축제의 빈자리: AI 배정위원회
+
+이 문서는 생성용 지시문이며 실제 음원 파일은 포함되어 있지 않다.
+배경음악은 Eleven Music, 짧은 효과음은 Sound Effects에서 제작한다. 지원 모델·길이·루프 옵션은 사용 시 현재 계정의 화면과 공식 문서를 확인한다. 길이는 프롬프트와 별도로 생성 설정에도 지정한다.
+모든 음악은 instrumental only를 명시한다. 기존 가수·게임 음악을 모방하지 않고 독자적인 소리로 제작한다. 학생의 윤리적 선택에 정답/오답 효과음을 붙이지 않는다.
+
+배경음악 1 — 대기실과 입장
+파일: bgm-lobby.mp3
+권장 길이: 약 60초, 반복 사용
+Prompt:
+Instrumental only. An original cozy futuristic school-festival game loop, 92 BPM, D major, warm muted analog synth chords, soft marimba accents and a light rounded bass pulse. Curious, welcoming and quietly playful for teenage students, polished contemporary indie-game production. Stable energy, sparse arrangement, soft transients, ample room for a teacher speaking. No vocals, choir, spoken words, dramatic risers, cinematic impacts or aggressive drums. Loop-friendly repeating harmony, no opening flourish, no fade-in, no fade-out and no final cadence.
+
+배경음악 2 — 단서 조사
+파일: bgm-investigation.mp3
+권장 길이: 약 60초, 반복 사용
+Prompt:
+Instrumental only. An original cooperative investigation-game loop, 88 BPM, D Dorian, gentle plucked synth notes, warm felt-piano fragments, muted wooden percussion and a restrained soft bass. Thoughtful curiosity and a small sense of discovery, never fear or urgency. Modern clean indie-game sound, sparse repetitive motif, no busy lead melody, suitable under classroom discussion. No vocals, speech, sirens, ticking countdown, dramatic drop or threatening dissonance. Stable loop-friendly texture, no intro, outro, fade or conclusive ending.
+
+배경음악 3 — 규칙 재설계
+파일: bgm-redesign.mp3
+권장 길이: 약 60초, 반복 사용
+Prompt:
+Instrumental only. An original collaborative puzzle-building loop, 96 BPM, D major, soft electronic mallets, restrained hand-percussion texture, rounded bass and warm analog pads. A feeling of assembling ideas together, gently purposeful and optimistic without triumph. Contemporary tactile indie-game production with spacious midrange for speech. No vocals, chants, heroic brass, pounding drums, dramatic build or victory fanfare. Consistent energy and repeating harmonic cycle; loop-friendly, no fade or closing cadence.
+
+배경음악 4 — 엔딩과 성찰
+파일: bgm-reflection.mp3
+권장 길이: 약 60초, 마지막에 부드러운 마무리 허용
+Prompt:
+Instrumental only. An original reflective ending cue for a teenage cooperative school-festival game, 72 BPM, D major with gentle suspended chords, warm felt piano, a restrained soft synth pad and occasional rounded bell tones. Hopeful, thoughtful and open-ended: we have improved our shared rule but still have questions. Modern intimate indie-game production, very sparse and comfortable underneath conversation. No vocals, choir, heroic climax, sentimental strings or celebratory fanfare. A subtle entrance and gentle spacious ending.
+
+음악 적용 메모
+음악 생성 결과의 루프 경계가 실제로 자연스러운지 듣고 필요하면 구간 편집·짧은 크로스페이드로 보정한다. ‘seamless’라는 프롬프트만으로 무결한 루프가 보장된다고 가정하지 않는다. 토론 구간은 교사가 한 번 눌러 볼륨을 낮출 수 있게 한다.
+
+효과음 1 — 버튼 선택
+파일: sfx-select.wav / 길이 설정: 0.5초
+Prompt:
+A single soft tactile interface tap: a rounded wooden tick blended with a tiny muted synth pluck. Friendly, neutral and understated. Very short natural decay, clean isolated one-shot, no voice, no background ambience, no sharp high-frequency click, no success or failure melody.
+
+효과음 2 — 응답 저장
+파일: sfx-submit.wav / 길이 설정: 0.8초
+Prompt:
+A small paper token gently sliding into a slot, followed by one soft rounded electronic note. A neutral acknowledgement that a response was received, not a reward. Clean isolated one-shot with a short decay. No voice, coin jackpot, victory chime, error buzzer or background music.
+
+효과음 3 — 새 단서 공개
+파일: sfx-clue.wav / 길이 설정: 1.5초
+Prompt:
+A small paper folder opens with a soft rustle, followed by two delicate glassy notes suggesting quiet curiosity. A gentle discovery cue for a cooperative classroom mystery, not a correct-answer reward. Clean isolated one-shot, soft dynamics, no speech, dramatic impact, sharp sparkle or music bed.
+
+효과음 4 — 교사 장면 전환
+파일: sfx-transition.wav / 길이 설정: 1초
+Prompt:
+A short smooth airy page-turn whoosh with a warm muted synth tail, signaling a new scene in a thoughtful cooperative game. Gentle and unobtrusive, clean isolated one-shot. No voice, alarm, cinematic boom, harsh sweep or long reverberation.
+
+효과음 5 — 학급 결과 공개
+파일: sfx-reveal.wav / 길이 설정: 2초
+Prompt:
+Several soft mechanical tiles settling into place, followed by a restrained open suspended chord. A neutral shared-decision reveal with room for reflection, neither victory nor defeat. Warm tactile indie-game interface sound, clean isolated one-shot. No voice, applause, cash register, dramatic bass hit or moral approval cue.
+
+효과음 6 — 시간 알림
+파일: sfx-time.wav / 길이 설정: 1초
+Prompt:
+One gentle low wooden bell note with a short warm decay, a calm classroom time reminder. Soft attack, unobtrusive and non-startling, clean isolated one-shot. No ticking, repeated alarm, urgency, buzzer, speech or sharp high frequencies.
+
+효과음 7 — 성찰 화면 도착
+파일: sfx-ending.wav / 길이 설정: 3초
+Prompt:
+A soft wooden token placed on a shared table, followed by a warm open piano-and-mallet chord with a gentle decay. Thoughtful completion of a collaborative conversation, hopeful and unfinished rather than triumphant. Isolated one-shot. No voice, fanfare, applause, victory arpeggio or background music.
+
+효과음 제작 메모
+- 각 프롬프트를 개별 생성한다. 긴 문장으로 전체 효과음 목록을 한 번에 생성하지 않는다.
+- 위 효과음은 모두 one-shot이며 Looping은 끈다. 별도의 환경음 루프를 만들 때만 루프 옵션을 사용한다.
+- 실제 출력 길이·무음 구간·클리핑을 확인하고 효과음 사이 음량을 맞춘다. 긴 잔향은 장면 전환 때 잘리지 않게 조정한다.
+- 가능하면 WAV 원본을 보존하고 웹용 형식도 함께 제공한다.
+- 음향 출력은 교사 화면 또는 공개 화면 중 지정된 한 화면에서만 허용한다. 학생 기기·다른 창은 기본 무음이다.
+- 오디오 재생 차단, 파일 누락, 무음 모드에서 게임 진행은 그대로 가능해야 한다.
+- 각 파일의 실제 서비스·모델·프롬프트·제작일·후편집·사용 조건 확인 내용을 자산 기록에 남긴다.
+
+공식 참고
+https://elevenlabs.io/docs/overview/capabilities/music/best-practices
+https://elevenlabs.io/docs/eleven-creative/playground/sound-effects
+https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert

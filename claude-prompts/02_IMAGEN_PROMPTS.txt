@@ -1,0 +1,71 @@
+Imagen 이미지 제작 프롬프트 — 축제의 빈자리: AI 배정위원회
+
+사용법
+이 문서는 이미지 생성용 프롬프트다. 현재 실제 이미지는 포함되어 있지 않다.
+사용 가능한 Google Imagen 모델의 지원 기능과 출력 비율을 확인한 후 생성한다. 모델에 없는 참조 이미지·투명 배경·전용 negative prompt 기능을 가정하지 않는다. 공통 스타일 문장과 각 자산의 프롬프트를 합쳐 일반 텍스트 프롬프트에 입력한다.
+처음 인트로 키아트를 확정한 뒤 나머지 자산의 색·그림체·인물 특징을 맞춘다. 참조 입력이 지원되는 도구라면 확정된 키아트를 참조로 사용한다. 그렇지 않으면 같은 스타일 문장과 인물 설명을 반복하고 결과를 사람이 검수한다.
+
+권장 테마
+https://getdesign.md/discord/design-md
+Discord의 디자인 분석을 참고하되 로고·캐릭터·브랜드 전용 폰트를 복제하지 않는다. 아래 팔레트는 이 게임을 위한 제안이며 원본 DESIGN.md의 정확한 토큰이라고 주장하지 않는다.
+남색 #151B3D / 보랏빛 #7468FF / 민트 #89E0CA / 살구 #FFBE9A / 따뜻한 흰색 #F5F3EE.
+
+공통 스타일 프롬프트
+Original premium cooperative mystery game art for Korean middle-school students aged 12–15. A near-future school festival, grounded and welcoming, with sophisticated stylized 2.5D editorial illustration, soft sculpted volumes, tactile matte surfaces, clean silhouettes, carefully art-directed lighting and restrained detail. Deep indigo, violet-blue, mint and warm apricot accents. A quietly curious, playful, hopeful tone, neither childish nor dystopian. Fictional students with varied hairstyles and everyday school clothing, equal visual dignity, no uniform stereotypes. All signage and display panels are blank. Text-free artwork, without logos, trademarks, watermarks, letters, numerals or embedded interface controls. The picture is visual storytelling; actual Korean text, buttons, charts and live data will be added by the application.
+
+01. 인트로 키아트 / intro-desktop.webp / 16:9
+Create a single continuous cinematic key visual for a cooperative game about a school festival's AI ticket allocation. An inviting school festival courtyard at blue hour, a small futuristic exploration booth at the right, and a translucent allocation kiosk with six simple glowing ticket-shaped slots. Several fictional teenage students stand in small groups around a shared planning table, curious rather than distressed. One student studies a blank information card; another points toward an unopened side entrance suggesting a different opportunity to join. The scene should raise the question of who gets a chance without depicting any student as a villain. Use the right 60 percent for detailed narrative composition. Keep the upper-left 40 percent a calm dark indigo architectural surface suitable for a large Korean title overlay, with an uncluttered lower-left area for two accessible HTML buttons. One integrated illustration, not a collage, not a dashboard, not separate cards. Strong focal hierarchy and generous negative space.
+
+UI 적용 메모: 제목 ‘축제의 빈자리’, 부제 ‘우리 반이 바꾸는 AI의 선택’, 교사 시작/학생 입장 버튼은 HTML로 올린다. 여섯 칸 등 수량이 잘못 생성되면 UI 숫자에 의존하지 않도록 해당 장식을 단순화한다. 이미지 자체를 정확한 데이터 표시로 사용하지 않는다.
+
+02. 인트로 모바일 / intro-mobile.webp / 9:16
+Create a portrait composition of the same fictional school festival world. A single continuous illustration. Put the festival booth and planning table in the lower half, with fictional teenagers gathering thoughtfully around the allocation kiosk. Reserve the top 35 percent as a quiet deep-indigo wall and evening sky for a large title overlay. Reserve a calm band near the bottom for accessible entry buttons. Maintain the same lighting, materials, color palette and character styling as the desktop key visual. Compose deliberately for a vertical screen; do not simply crop a landscape image. All signs blank, no typography or UI.
+
+03. 첫 배정 장면 / scene-allocation.webp / 16:9
+A single scene inside the same school festival planning pavilion. A friendly abstract allocation machine sits on a desk, sending blank glowing ticket cards toward two equally dignified groups of fictional teenage applicants. Some are waiting and some hold a ticket, with mixed thoughtful expressions and no exaggerated sadness or triumph. A clock-shaped object and activity badges suggest speed and prior experience as possible criteria, without numbers or writing. Keep the center-left panel clean for the app's question overlay. The machine is an ordinary tool, not an evil robot or an all-knowing judge. Make the allocation process visually intriguing without encoding a correct answer.
+
+04. 조사 장면 / scene-investigation.webp / 16:9
+The same school festival pavilion, now seen as a collaborative investigation table. Fictional teenagers compare blank cards, an abstract route map, a magnifying lens and translucent layers inside the allocation kiosk. One route begins farther away than another, suggesting unequal access without identifying anyone's real socioeconomic status. Distinct clues are placed around the table, leaving a calm center area for the app's evidence controls. Curious and collaborative mood, no police, crime tape, villains or ominous surveillance. One cohesive illustrated environment, no text or data charts.
+
+05. 규칙 수정 장면 / scene-redesign.webp / 16:9
+The same fictional students collaboratively rearrange large translucent rule tiles around the school festival planning table. The allocation kiosk is now open for inspection, with visible modular paths, while the festival continues in the background. Different students contribute equally: one rearranges a tile, one compares a blank card, one listens, one points to an accessible entrance. Show negotiation and thoughtful revision rather than a magical perfect solution. Reserve the lower middle area for live before-and-after results to be overlaid as HTML. No numeric scoring, thumbs-up morality symbols or victory ranking.
+
+06. 엔딩 키아트 / ending-desktop.webp / 16:9
+Create a single full-scene closing illustration for the same cooperative AI allocation game. The school festival courtyard in warm late-afternoon light after a planning meeting. The familiar booth, kiosk and shared table remain. Fictional students have reopened pathways and gathered around an unfinished community noticeboard, suggesting that the rules can keep improving. Everyone has equal dignity, and the scene does not imply that every problem is solved or every applicant won a ticket. Keep a large quiet indigo noticeboard surface across the left-center 45 percent, with no marks, for actual class decisions and questions to be overlaid by the application. Use the remaining area for a hopeful but reflective story moment. One beautiful integrated illustration, no dashboard panels, no medals, no trophy, no embedded text. Visually echo the opening image with warmer light and a more open composition.
+
+UI 적용 메모: ‘우리의 기준은 이렇게 달라졌다’, 실제 정책, 학급 질문 2개, 남은 질문은 HTML로 올린다. 결과 문장이 많은 경우 이미지 위 읽기 영역을 스크롤 가능하게 하되 핵심 이미지 구도를 유지한다. 이미지 위에 또 카드 대시보드를 만들지 않는다.
+
+07. 엔딩 모바일 / ending-mobile.webp / 9:16
+A portrait closing illustration in the same school festival world, with the warm, reflective atmosphere and consistent characters of the desktop ending. A large blank indigo community noticeboard occupies the top and middle, providing calm space for real class reflections. The shared table, open kiosk and students appear along the lower third, with open pathways leading into the festival. A single continuous composition. No embedded text, no medals and no implication of a perfect moral victory. Designed for a vertical screen rather than cropped from landscape.
+
+08. 관점 카드 삽화 / perspective-{applicant,newcomer,organizer,guide}.webp / 각 1:1
+아래 4개를 각각 별도로 생성한다. 카드 내용·역할 이름은 HTML로 표시한다.
+A. A fictional teenage applicant holding a blank application card, thoughtfully considering a school festival ticket, neutral dignified expression, waist-up portrait, simple indigo background, generous breathing room.
+B. A fictional teenage first-time participant looking with curiosity at a new festival booth, holding a small blank map, neutral dignified expression, waist-up portrait, simple indigo background. Do not depict poverty, helplessness or a stereotyped identity.
+C. A fictional teenage festival organizer holding a blank schedule board and several ticket-shaped tokens, balancing practical constraints with attention to others, waist-up portrait, simple indigo background.
+D. A fictional teenage information guide holding a magnifying lens beside a blank translucent information panel, inviting questions, waist-up portrait, simple indigo background.
+인물 고정 메모: 머리·옷·소품의 특징을 승인된 결과를 기준으로 기록한다. 역할마다 성별 고정관념을 부여하지 않는다. 배경 제거가 필요하면 별도 후처리한 PNG/WebP를 검증한다. 생성 모델이 알파 채널을 출력한다고 가정하지 않는다.
+
+09. 조사 카드 삽화 / clue-{access,experience,rules,explanation}.webp / 각 4:3
+A. Two different paths leading to the same school festival application kiosk, one short and one with a closed gate that is beginning to open. Friendly, precise illustration about opportunity to participate, no people classified as better or worse, no text.
+B. A small collection of identical activity badges beside an empty badge holder and an inviting practice station, suggesting prior experience versus first opportunity. No ranking podium, no grades, no text.
+C. An open modular allocation box with transparent pathways and blank rule tiles, a small neutral draw bag for tied applications, no numbers, no text.
+D. A translucent blank explanation card held between a kiosk and a person, with a simple question-shaped abstract bubble that contains no glyphs. The information panel reveals mechanical paths while personal cards remain face-down. No text or identifying details.
+
+10. 공동 진행 배지 / badge-{perspective,evidence,revision}.webp / 각 1:1
+A. A tactile collectible game emblem showing three equally sized overlapping lenses, symbolizing different perspectives. Centered on a simple indigo field, no text, no rank, no stars, no score.
+B. A tactile collectible game emblem showing an open folder with a magnifying lens, symbolizing checking evidence. Same materials, camera angle and lighting, no text or score.
+C. A tactile collectible game emblem showing two softly interlocking adjustable tiles, symbolizing revising a shared rule. Same materials, camera angle and lighting, no text or score.
+배지는 학급이 수행한 과정 표시용이다. 학생별 도덕성 보상으로 사용하지 않는다.
+
+납품과 검수
+- Imagen 원본 보존, 웹용 최적화 파일 별도 저장, 크기와 용량 기록.
+- 인트로/엔딩은 화면당 한 장의 키아트, 모바일은 별도 구성.
+- 실제 한국어 제목·질문을 얹어 가독성·대비·반응형 크롭 검사.
+- 인물 일관성, 손·얼굴 오류, 깨진 가짜 글자, 특정 집단의 악역화 검사.
+- 정적 원본과 최종 파일, 생성 모델, 실제 프롬프트, 제작일, 후편집 내용을 ASSET_MANIFEST와 AI_USAGE에 기록.
+- 미생성 이미지를 생성 완료로 보고하거나 일반 CSS 일러스트로 조용히 대체하지 않는다.
+
+참고
+https://docs.cloud.google.com/vertex-ai/generative-ai/docs/image/img-gen-prompt-guide
+https://getdesign.md/discord/design-md

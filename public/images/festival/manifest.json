@@ -1,0 +1,398 @@
+[
+  {
+    "id": "badge-evidence",
+    "source": "assets/images/badge-evidence.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1771803,
+    "hasAlpha": true,
+    "outputs": [
+      {
+        "file": "images/festival/badge-evidence-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 30434
+      },
+      {
+        "file": "images/festival/badge-evidence-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 12116
+      }
+    ]
+  },
+  {
+    "id": "badge-perspective",
+    "source": "assets/images/badge-perspective.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1798297,
+    "hasAlpha": true,
+    "outputs": [
+      {
+        "file": "images/festival/badge-perspective-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 29860
+      },
+      {
+        "file": "images/festival/badge-perspective-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 11402
+      }
+    ]
+  },
+  {
+    "id": "badge-revision",
+    "source": "assets/images/badge-revision.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1569097,
+    "hasAlpha": true,
+    "outputs": [
+      {
+        "file": "images/festival/badge-revision-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 28022
+      },
+      {
+        "file": "images/festival/badge-revision-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 10416
+      }
+    ]
+  },
+  {
+    "id": "clue-access",
+    "source": "assets/images/clue-access.png",
+    "sourceWidth": 1448,
+    "sourceHeight": 1086,
+    "sourceBytes": 2636380,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/clue-access-960.webp",
+        "width": 960,
+        "height": 720,
+        "bytes": 152870
+      },
+      {
+        "file": "images/festival/clue-access-640.webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 80360
+      }
+    ]
+  },
+  {
+    "id": "clue-experience",
+    "source": "assets/images/clue-experience.png",
+    "sourceWidth": 1448,
+    "sourceHeight": 1086,
+    "sourceBytes": 2267331,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/clue-experience-960.webp",
+        "width": 960,
+        "height": 720,
+        "bytes": 109086
+      },
+      {
+        "file": "images/festival/clue-experience-640.webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 61916
+      }
+    ]
+  },
+  {
+    "id": "clue-explanation",
+    "source": "assets/images/clue-explanation.png",
+    "sourceWidth": 1448,
+    "sourceHeight": 1086,
+    "sourceBytes": 2122769,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/clue-explanation-960.webp",
+        "width": 960,
+        "height": 720,
+        "bytes": 97882
+      },
+      {
+        "file": "images/festival/clue-explanation-640.webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 54758
+      }
+    ]
+  },
+  {
+    "id": "clue-rules",
+    "source": "assets/images/clue-rules.png",
+    "sourceWidth": 1448,
+    "sourceHeight": 1086,
+    "sourceBytes": 2362629,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/clue-rules-960.webp",
+        "width": 960,
+        "height": 720,
+        "bytes": 116310
+      },
+      {
+        "file": "images/festival/clue-rules-640.webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 65040
+      }
+    ]
+  },
+  {
+    "id": "ending-desktop",
+    "source": "assets/images/ending-desktop.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2467329,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/ending-desktop-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 238492
+      },
+      {
+        "file": "images/festival/ending-desktop-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 165294
+      }
+    ]
+  },
+  {
+    "id": "ending-mobile",
+    "source": "assets/images/ending-mobile.png",
+    "sourceWidth": 941,
+    "sourceHeight": 1672,
+    "sourceBytes": 2442716,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/ending-mobile-941.webp",
+        "width": 941,
+        "height": 1672,
+        "bytes": 217866
+      },
+      {
+        "file": "images/festival/ending-mobile-720.webp",
+        "width": 720,
+        "height": 1279,
+        "bytes": 154752
+      }
+    ]
+  },
+  {
+    "id": "intro-desktop",
+    "source": "assets/images/intro-desktop.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2205225,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/intro-desktop-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 168644
+      },
+      {
+        "file": "images/festival/intro-desktop-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 120464
+      }
+    ]
+  },
+  {
+    "id": "intro-mobile",
+    "source": "assets/images/intro-mobile.png",
+    "sourceWidth": 941,
+    "sourceHeight": 1672,
+    "sourceBytes": 2176973,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/intro-mobile-941.webp",
+        "width": 941,
+        "height": 1672,
+        "bytes": 168878
+      },
+      {
+        "file": "images/festival/intro-mobile-720.webp",
+        "width": 720,
+        "height": 1279,
+        "bytes": 119666
+      }
+    ]
+  },
+  {
+    "id": "perspective-applicant",
+    "source": "assets/images/perspective-applicant.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2204278,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/perspective-applicant-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 44408
+      },
+      {
+        "file": "images/festival/perspective-applicant-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 15826
+      }
+    ]
+  },
+  {
+    "id": "perspective-guide",
+    "source": "assets/images/perspective-guide.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1995163,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/perspective-guide-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 44692
+      },
+      {
+        "file": "images/festival/perspective-guide-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 16308
+      }
+    ]
+  },
+  {
+    "id": "perspective-newcomer",
+    "source": "assets/images/perspective-newcomer.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1941663,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/perspective-newcomer-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 44582
+      },
+      {
+        "file": "images/festival/perspective-newcomer-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 16370
+      }
+    ]
+  },
+  {
+    "id": "perspective-organizer",
+    "source": "assets/images/perspective-organizer.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2091165,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/perspective-organizer-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 49026
+      },
+      {
+        "file": "images/festival/perspective-organizer-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 16858
+      }
+    ]
+  },
+  {
+    "id": "scene-allocation",
+    "source": "assets/images/scene-allocation.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2289295,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/scene-allocation-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 189382
+      },
+      {
+        "file": "images/festival/scene-allocation-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 136984
+      }
+    ]
+  },
+  {
+    "id": "scene-investigation",
+    "source": "assets/images/scene-investigation.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2431071,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/scene-investigation-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 222986
+      },
+      {
+        "file": "images/festival/scene-investigation-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 155368
+      }
+    ]
+  },
+  {
+    "id": "scene-redesign",
+    "source": "assets/images/scene-redesign.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2364807,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/scene-redesign-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 215530
+      },
+      {
+        "file": "images/festival/scene-redesign-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 154712
+      }
+    ]
+  }
+]

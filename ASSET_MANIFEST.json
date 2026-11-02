@@ -1,0 +1,700 @@
+{
+  "title": "축제의 빈자리: AI 배정위원회",
+  "updated": "2026-11-02",
+  "notes": [
+    "이미지 원본은 OpenAI built-in imagegen 으로 2026-11-01 생성. Google Imagen 아님.",
+    "음향은 ElevenLabs. bgm-reflection.mp3 는 제공되지 않아 미적용.",
+    "앱은 최적화 WebP 만 배포하고 PNG 원본은 assets/ 에 보존한다."
+  ],
+  "images": [
+    {
+      "id": "intro-desktop",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/intro-desktop.png",
+      "sourceSize": "1672x941",
+      "sourceBytes": 2205225,
+      "alpha": false,
+      "prompt": "Use case: illustration-story. Generate ONE final production website game intro key art, wide landscape 16:9. Original premium cooperative mystery game for Korean middle school students aged 12–15, titled in the app \"축제의 빈자리\" but NO TEXT IN IMAGE.\nA near-future school festival courtyard at blue hour. Sophisticated stylish 2.5D editorial game illustration, tactile matte surfaces, soft sculpted forms, crisp silhouettes, carefully art-directed lighting, subtle grain, polished composition. NOT preschool clay toys, not photorealistic, not a generic corporate illustration.\nPalette deep indigo #151B3D, violet-blue #7468FF, mint #89E0CA, apricot #FFBE9A, warm white #F5F3EE.\nRIGHT 60 percent: an inviting exploration booth, a small transparent ticket allocation kiosk with simple blank glowing ticket shapes, a shared planning table, and four fictional Korean teenage students with varied everyday clothing: a girl with a short black bob and mint jacket, a boy with wavy dark hair and cream sweatshirt, a girl with long tied-back hair and apricot cardigan, a boy with short hair and violet overshirt. They are curious and discussing opportunities to participate, equal dignity. One considers a blank information card, another gestures toward a side entrance. Abstract festival lanterns overhead, thoughtful warm atmosphere.\nLEFT 40 percent: generous calm dark indigo architectural surface and quiet evening sky, intentionally low-detail negative space for a large HTML title and two buttons. No fake UI, no built-in panels or controls. One continuous cinematic illustration, not a collage. Every sign and card blank: NO letters, numbers, words, logos, watermarks. Composition must remain usable as game landing background.",
+      "reference": null,
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/intro-desktop-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 168644
+        },
+        {
+          "file": "images/festival/intro-desktop-1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 120464
+        }
+      ],
+      "use": "랜딩·공개 화면 인트로·학생 인트로 배경(16:9)",
+      "overlay": "왼쪽 약 35~44% 어두운 영역에 제목·버튼(HTML)"
+    },
+    {
+      "id": "intro-mobile",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/intro-mobile.png",
+      "sourceSize": "941x1672",
+      "sourceBytes": 2176973,
+      "alpha": false,
+      "prompt": "Use the provided image ONLY as a style, character, setting, and palette reference. Create a NEW single illustration, matching its premium cinematic painterly anime game art, meticulous warm festival lights, rich deep indigo, mint, violet and apricot palette. Retain the four fictional middle-school teens: short black bob girl in mint jacket, wavy dark-haired boy in cream sweatshirt, ponytail girl in apricot cardigan, short-haired boy in violet overshirt. All have equal dignity. All signs/cards blank. NO TEXT, letters, numbers, logos, watermark or embedded UI. This is production artwork for an interactive educational game. Create a portrait 9:16 intro artwork with intentional vertical composition. Top 40% is quiet low-detail deep indigo evening sky and school wall for HTML title. Lower half shows the four teens planning together at a festival table beside a translucent ticket kiosk and softly glowing festival booth. Keep a quiet dark band at bottom for HTML buttons. Single continuous beautiful scene, not a crop of the reference. Curiosity, welcoming mystery, neither childish nor threatening.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/intro-mobile-941.webp",
+          "width": 941,
+          "height": 1672,
+          "bytes": 168878
+        },
+        {
+          "file": "images/festival/intro-mobile-720.webp",
+          "width": 720,
+          "height": 1279,
+          "bytes": 119666
+        }
+      ],
+      "use": "랜딩 모바일 세로(9:16)",
+      "overlay": "상단 하늘에 제목, 하단 어두운 띠에 버튼"
+    },
+    {
+      "id": "ending-desktop",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/ending-desktop.png",
+      "sourceSize": "1672x941",
+      "sourceBytes": 2467329,
+      "alpha": false,
+      "prompt": "Use the provided image ONLY as a style, character, setting, and palette reference. Create a NEW single illustration, matching its premium cinematic painterly anime game art, meticulous warm festival lights, rich deep indigo, mint, violet and apricot palette. Retain the four fictional middle-school teens: short black bob girl in mint jacket, wavy dark-haired boy in cream sweatshirt, ponytail girl in apricot cardigan, short-haired boy in violet overshirt. All have equal dignity. All signs/cards blank. NO TEXT, letters, numbers, logos, watermark or embedded UI. This is production artwork for an interactive educational game. Create a wide 16:9 closing key art in the same school festival courtyard, warm amber late-evening light. LEFT 48% is one large blank matte deep-indigo community noticeboard, completely free of writing, numerals, stickers or decoration inside, framed naturally as part of the architecture, for HTML class reflections. RIGHT shows the four teens gathered around their shared planning table with an open transparent kiosk and a newly opened pathway into festival. Thoughtful hopeful expressions, no victory poses, trophies or implication every problem is solved. Open-ended collaborative conclusion. One single integrated cinematic scene, not separate UI cards. The board must be calm, large and legible as a text background.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/ending-desktop-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 238492
+        },
+        {
+          "file": "images/festival/ending-desktop-1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 165294
+        }
+      ],
+      "use": "엔딩 장면(16:9)",
+      "overlay": "왼쪽 빈 게시판(좌 6%·상 6%·폭 36%·높이 58%)에 실시간 학급 결과"
+    },
+    {
+      "id": "ending-mobile",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/ending-mobile.png",
+      "sourceSize": "941x1672",
+      "sourceBytes": 2442716,
+      "alpha": false,
+      "prompt": "Use the provided image ONLY as a style, character, setting, and palette reference. Create a NEW single illustration, matching its premium cinematic painterly anime game art, meticulous warm festival lights, rich deep indigo, mint, violet and apricot palette. Retain the four fictional middle-school teens: short black bob girl in mint jacket, wavy dark-haired boy in cream sweatshirt, ponytail girl in apricot cardigan, short-haired boy in violet overshirt. All have equal dignity. All signs/cards blank. NO TEXT, letters, numbers, logos, watermark or embedded UI. This is production artwork for an interactive educational game. Create a portrait 9:16 closing artwork. Top and middle 55% occupied by a large completely blank deep-indigo community noticeboard framed naturally in festival pavilion, calm space for actual class decisions and reflection text added in HTML. Lower third shows four students at shared table beside the open kiosk and an open path into the warmly lit festival. Thoughtful and hopeful, no trophies or victory gestures. Warm amber dusk lighting over consistent indigo world. Single continuous vertical artwork, no panels or collage; compose for mobile instead of cropping.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/ending-mobile-941.webp",
+          "width": 941,
+          "height": 1672,
+          "bytes": 217866
+        },
+        {
+          "file": "images/festival/ending-mobile-720.webp",
+          "width": 720,
+          "height": 1279,
+          "bytes": 154752
+        }
+      ],
+      "use": "엔딩 장면 모바일(9:16)",
+      "overlay": "상단 게시판(좌 14%·상 12%·폭 71%·높이 40%)"
+    },
+    {
+      "id": "scene-allocation",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/scene-allocation.png",
+      "sourceSize": "1672x941",
+      "sourceBytes": 2289295,
+      "alpha": false,
+      "prompt": "Use the provided image as a STYLE and CHARACTER reference only. Generate ONE new wide 16:9 production game scene. Match the beautiful cinematic painterly anime illustration, detailed dusk Korean school festival, warm lantern light, deep-indigo/mint/violet/apricot palette, tactile materials and four fictional Korean middle-school teens: bob-haired girl mint jacket, wavy-haired boy cream sweatshirt, ponytail girl apricot cardigan, short-haired boy violet overshirt. No text, letters, numbers, logos, watermark, graphs or embedded UI. Blank cards and signage. Do not reuse the reference composition; this is a distinct story chapter. First allocation: camera looks across a festival reception counter toward a modest transparent AI ticket kiosk, softly lit blank ticket cards emerging from a tray. Several equally dignified fictional student applicants wait on both sides, some holding a ticket and some considering a blank waiting card, varied thoughtful reactions but no villain or exaggerated misery. Our four recurring committee students stand behind the desk examining the situation. Small analog clock and abstract activity badges suggest speed and experience without labels. Focus action on RIGHT and lower area; reserve LEFT 30% as a calm indigo pavilion wall for HTML question. The kiosk should visibly look like a technological decision tool with simple abstract light channels, not a lottery box or evil robot.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/scene-allocation-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 189382
+        },
+        {
+          "file": "images/festival/scene-allocation-1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 136984
+        }
+      ],
+      "use": "라운드 1 장면 배경",
+      "overlay": "왼쪽 어두운 영역 질문 오버레이"
+    },
+    {
+      "id": "scene-investigation",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/scene-investigation.png",
+      "sourceSize": "1672x941",
+      "sourceBytes": 2431071,
+      "alpha": false,
+      "prompt": "Use the provided image as a STYLE and CHARACTER reference only. Generate ONE new wide 16:9 production game scene. Match the beautiful cinematic painterly anime illustration, detailed dusk Korean school festival, warm lantern light, deep-indigo/mint/violet/apricot palette, tactile materials and four fictional Korean middle-school teens: bob-haired girl mint jacket, wavy-haired boy cream sweatshirt, ponytail girl apricot cardigan, short-haired boy violet overshirt. No text, letters, numbers, logos, watermark, graphs or embedded UI. Blank cards and signage. Do not reuse the reference composition; this is a distinct story chapter. Investigation chapter: slightly elevated view of a large shared evidence table, students actively comparing two route maps with different starting distances, blank cards, a magnifying lens, an open transparent ticket kiosk showing abstract internal pathways. One student holds lens, another points at a longer route; others compare blank records. No readable marks on maps. Details mainly on RIGHT 65% and lower right; LEFT 35% quiet dark pavilion wall for HTML question and clue controls. Warm curiosity and cooperative discovery; no police, crime, surveillance or fear. Interesting different camera and poses from intro.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/scene-investigation-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 222986
+        },
+        {
+          "file": "images/festival/scene-investigation-1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 155368
+        }
+      ],
+      "use": "라운드 2 장면 배경",
+      "overlay": "왼쪽 어두운 영역 질문 오버레이"
+    },
+    {
+      "id": "scene-redesign",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/scene-redesign.png",
+      "sourceSize": "1672x941",
+      "sourceBytes": 2364807,
+      "alpha": false,
+      "prompt": "Use the provided image as a STYLE and CHARACTER reference only. Generate ONE new wide 16:9 production game scene. Match the beautiful cinematic painterly anime illustration, detailed dusk Korean school festival, warm lantern light, deep-indigo/mint/violet/apricot palette, tactile materials and four fictional Korean middle-school teens: bob-haired girl mint jacket, wavy-haired boy cream sweatshirt, ponytail girl apricot cardigan, short-haired boy violet overshirt. No text, letters, numbers, logos, watermark, graphs or embedded UI. Blank cards and signage. Do not reuse the reference composition; this is a distinct story chapter. Rule redesign chapter: dynamic three-quarter view of the committee collaborating at a shared table, arranging large translucent mint and violet modular rule tiles into branching paths connected to an open friendly technological allocation kiosk. Each student contributes differently, listening, sliding a tile, comparing blank card, indicating a newly opened entrance. Show the work and negotiation, not magical victory. Background festival active, warm optimistic lighting. Put the group on RIGHT 65%, keep LEFT 35% calm dark indigo for HTML question and before/after UI. No thumbs-up moral approval, trophies, numbers or charts.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/scene-redesign-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 215530
+        },
+        {
+          "file": "images/festival/scene-redesign-1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 154712
+        }
+      ],
+      "use": "라운드 3·공동 약속 장면 배경",
+      "overlay": "왼쪽 어두운 영역 질문 오버레이"
+    },
+    {
+      "id": "perspective-applicant",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/perspective-applicant.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 2204278,
+      "alpha": false,
+      "prompt": "Create ONE square 1:1 illustrated character card asset for a middle-school cooperative educational game. Reference image is STYLE and CHARACTER identity reference only. Match its refined painterly cinematic anime illustration and warm dusk lighting. Single waist-up fictional teen, centered with generous margins, hands anatomically clear, a plain softly textured deep-indigo background with faint warm festival bokeh at edges. No UI frame, no text, letters, numbers, logos or watermarks. Same school clothing layering and color fidelity as reference. Thoughtful, curious and dignified, not childish. Subject: the short-black-bob girl wearing mint jacket over light lavender hoodie from reference. She holds a blank cream application card carefully in both hands at chest height and looks thoughtful, slight natural smile. Represents an applicant considering how decisions are made. Simple elegant portrait composition.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/perspective-applicant-640.webp",
+          "width": 640,
+          "height": 640,
+          "bytes": 44408
+        },
+        {
+          "file": "images/festival/perspective-applicant-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 15826
+        }
+      ],
+      "use": "관점 카드: 신청자",
+      "overlay": "역할명·질문은 카드 아래 HTML"
+    },
+    {
+      "id": "perspective-newcomer",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/perspective-newcomer.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 1941663,
+      "alpha": false,
+      "prompt": "Create ONE square 1:1 illustrated character card asset for a middle-school cooperative educational game. Reference image is STYLE and CHARACTER identity reference only. Match its refined painterly cinematic anime illustration and warm dusk lighting. Single waist-up fictional teen, centered with generous margins, hands anatomically clear, a plain softly textured deep-indigo background with faint warm festival bokeh at edges. No UI frame, no text, letters, numbers, logos or watermarks. Same school clothing layering and color fidelity as reference. Thoughtful, curious and dignified, not childish. Subject: the wavy-dark-haired boy wearing cream sweatshirt from reference. He holds a small blank folded map and looks with fresh curiosity to one side, as a first-time festival participant. Approachable and confident; do not depict poverty or helplessness. No badges of rank.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/perspective-newcomer-640.webp",
+          "width": 640,
+          "height": 640,
+          "bytes": 44582
+        },
+        {
+          "file": "images/festival/perspective-newcomer-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 16370
+        }
+      ],
+      "use": "관점 카드: 처음 참가하는 사람",
+      "overlay": "역할명·질문은 카드 아래 HTML"
+    },
+    {
+      "id": "perspective-organizer",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/perspective-organizer.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 2091165,
+      "alpha": false,
+      "prompt": "Create ONE square 1:1 illustrated character card asset for a middle-school cooperative educational game. Reference image is STYLE and CHARACTER identity reference only. Match its refined painterly cinematic anime illustration and warm dusk lighting. Single waist-up fictional teen, centered with generous margins, hands anatomically clear, a plain softly textured deep-indigo background with faint warm festival bokeh at edges. No UI frame, no text, letters, numbers, logos or watermarks. Same school clothing layering and color fidelity as reference. Thoughtful, curious and dignified, not childish. Subject: the long-ponytail girl wearing apricot cardigan from reference. She holds a blank indigo clipboard and a few blank mint ticket-shaped cards, calm attentive expression as festival organizer balancing limited resources. Warmly listens, not authoritative or bossy.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/perspective-organizer-640.webp",
+          "width": 640,
+          "height": 640,
+          "bytes": 49026
+        },
+        {
+          "file": "images/festival/perspective-organizer-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 16858
+        }
+      ],
+      "use": "관점 카드: 축제 운영자",
+      "overlay": "역할명·질문은 카드 아래 HTML"
+    },
+    {
+      "id": "perspective-guide",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/perspective-guide.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 1995163,
+      "alpha": false,
+      "prompt": "Create ONE square 1:1 illustrated character card asset for a middle-school cooperative educational game. Reference image is STYLE and CHARACTER identity reference only. Match its refined painterly cinematic anime illustration and warm dusk lighting. Single waist-up fictional teen, centered with generous margins, hands anatomically clear, a plain softly textured deep-indigo background with faint warm festival bokeh at edges. No UI frame, no text, letters, numbers, logos or watermarks. Same school clothing layering and color fidelity as reference. Thoughtful, curious and dignified, not childish. Subject: the short-dark-haired boy wearing violet overshirt over light hoodie from reference. He holds a small magnifying lens and a blank translucent information card, inviting thoughtful questions with an attentive half-smile. Represents an information guide. Keep lens separated naturally from face and hands.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/perspective-guide-640.webp",
+          "width": 640,
+          "height": 640,
+          "bytes": 44692
+        },
+        {
+          "file": "images/festival/perspective-guide-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 16308
+        }
+      ],
+      "use": "관점 카드: 안내·설명 담당자",
+      "overlay": "역할명·질문은 카드 아래 HTML"
+    },
+    {
+      "id": "clue-access",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/clue-access.png",
+      "sourceSize": "1448x1086",
+      "sourceBytes": 2636380,
+      "alpha": false,
+      "prompt": "Use supplied image ONLY as rendering-style, palette and festival-world reference. Generate ONE new 4:3 landscape clue-card illustration. Premium painterly cinematic anime game prop art, meticulous lighting, deep indigo shadows, warm festival lantern glow, mint/violet/apricot accent, tactile wood/glass/paper surfaces. A clear meaningful composition readable at small size with just a few focal objects. No people required. No text, letters, numerals, logos, watermark or interface. Show a miniature school festival courtyard diorama on a planning table, two clearly different pathways leading to the SAME ticket application kiosk: one short open route and one longer route around a recently opened gate. Equal starting markers, no winning/losing colors. The point is unequal opportunity to arrive, not individual merit. Overhead three-quarter camera. Blank flag on kiosk and simple glowing light, elegant rich composition. Never draw a balance scale.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/clue-access-960.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 152870
+        },
+        {
+          "file": "images/festival/clue-access-640.webp",
+          "width": 640,
+          "height": 480,
+          "bytes": 80360
+        }
+      ],
+      "use": "조사 카드: 신청 기회의 차이 (공개 시에만 전송)",
+      "overlay": "근거·반응 HTML"
+    },
+    {
+      "id": "clue-experience",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/clue-experience.png",
+      "sourceSize": "1448x1086",
+      "sourceBytes": 2267331,
+      "alpha": false,
+      "prompt": "Use supplied image ONLY as rendering-style, palette and festival-world reference. Generate ONE new 4:3 landscape clue-card illustration. Premium painterly cinematic anime game prop art, meticulous lighting, deep indigo shadows, warm festival lantern glow, mint/violet/apricot accent, tactile wood/glass/paper surfaces. A clear meaningful composition readable at small size with just a few focal objects. No people required. No text, letters, numerals, logos, watermark or interface. On a school festival planning table, place two identical open activity badge holders side by side. One contains several simple blank mint round activity badges, the other is empty with a single blank invitation card beside it. A welcoming small practice booth is softly blurred in background. Focus on prior experience versus first opportunity, equal dignity, neither holder damaged or impoverished. No trophy, grade, rank or medal ribbons. Warm still life.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/clue-experience-960.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 109086
+        },
+        {
+          "file": "images/festival/clue-experience-640.webp",
+          "width": 640,
+          "height": 480,
+          "bytes": 61916
+        }
+      ],
+      "use": "조사 카드: 경험 점수의 의미",
+      "overlay": "근거·반응 HTML"
+    },
+    {
+      "id": "clue-rules",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/clue-rules.png",
+      "sourceSize": "1448x1086",
+      "sourceBytes": 2362629,
+      "alpha": false,
+      "prompt": "Use supplied image ONLY as rendering-style, palette and festival-world reference. Generate ONE new 4:3 landscape clue-card illustration. Premium painterly cinematic anime game prop art, meticulous lighting, deep indigo shadows, warm festival lantern glow, mint/violet/apricot accent, tactile wood/glass/paper surfaces. A clear meaningful composition readable at small size with just a few focal objects. No people required. No text, letters, numerals, logos, watermark or interface. An open transparent technological allocation box on a festival planning desk, showing modular violet and mint pathways connected to blank rule tiles; beside it a small neutral fabric draw bag with identical blank wooden tokens for resolving ties. Elegant three-quarter close-up, carefully rendered acrylic and warm wood. Demystify the mechanism rather than mystical AI. All tiles blank, no equations or labels, not a slot machine.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/clue-rules-960.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 116310
+        },
+        {
+          "file": "images/festival/clue-rules-640.webp",
+          "width": 640,
+          "height": 480,
+          "bytes": 65040
+        }
+      ],
+      "use": "조사 카드: 추천 기준과 동점 처리",
+      "overlay": "근거·반응 HTML"
+    },
+    {
+      "id": "clue-explanation",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/clue-explanation.png",
+      "sourceSize": "1448x1086",
+      "sourceBytes": 2122769,
+      "alpha": false,
+      "prompt": "Use supplied image ONLY as rendering-style, palette and festival-world reference. Generate ONE new 4:3 landscape clue-card illustration. Premium painterly cinematic anime game prop art, meticulous lighting, deep indigo shadows, warm festival lantern glow, mint/violet/apricot accent, tactile wood/glass/paper surfaces. A clear meaningful composition readable at small size with just a few focal objects. No people required. No text, letters, numerals, logos, watermark or interface. A luminous transparent blank explanation panel standing in front of a small ticket allocation kiosk, making its internal branching paths visible. Beside it on the wooden desk a small closed opaque indigo envelope and face-down personal cards stay private. Gentle magnifying lens resting nearby. A visual distinction between explaining rules and exposing personal details. Still life, sophisticated light and restrained detail. No eyes, surveillance cameras, padlock fear imagery, letters or numbers.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/clue-explanation-960.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 97882
+        },
+        {
+          "file": "images/festival/clue-explanation-640.webp",
+          "width": 640,
+          "height": 480,
+          "bytes": 54758
+        }
+      ],
+      "use": "조사 카드: 결과를 전달하는 설명 방식",
+      "overlay": "근거·반응 HTML"
+    },
+    {
+      "id": "badge-perspective",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/badge-perspective.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 1798297,
+      "alpha": true,
+      "prompt": "Generate ONE premium illustrated game badge, square 1:1 canvas, TRUE TRANSPARENT BACKGROUND. Use reference only for palette and painterly material rendering; do not include scene or people. A substantial tactile enamel-and-translucent-acrylic collectible emblem with indigo edge, mint, violet and warm apricot details, softly painted warm rim lighting matching a school festival game. Centered object entirely inside frame with 15% transparent margin. Elegant rounded dimensional craftsmanship, clear silhouette readable at 80px, a few broad shapes, no fine clutter. No text, letters, numbers, stars, rankings, trophy, award ribbons, logo or watermark. Process marker for a whole class, not individual moral merit. Symbol: three equally sized overlapping circular translucent lenses, each a different restrained accent color, arranged as an equilateral triangular cluster in one circular indigo enamel badge. Equality and viewing from multiple perspectives. No eyes.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/badge-perspective-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 29860
+        },
+        {
+          "file": "images/festival/badge-perspective-160.webp",
+          "width": 160,
+          "height": 160,
+          "bytes": 11402
+        }
+      ],
+      "use": "학급 진행 배지: 관점 발견 (alt=\"\" + 텍스트 병기)",
+      "overlay": "-"
+    },
+    {
+      "id": "badge-evidence",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/badge-evidence.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 1771803,
+      "alpha": true,
+      "prompt": "Generate ONE premium illustrated game badge, square 1:1 canvas, TRUE TRANSPARENT BACKGROUND. Use reference only for palette and painterly material rendering; do not include scene or people. A substantial tactile enamel-and-translucent-acrylic collectible emblem with indigo edge, mint, violet and warm apricot details, softly painted warm rim lighting matching a school festival game. Centered object entirely inside frame with 15% transparent margin. Elegant rounded dimensional craftsmanship, clear silhouette readable at 80px, a few broad shapes, no fine clutter. No text, letters, numbers, stars, rankings, trophy, award ribbons, logo or watermark. Process marker for a whole class, not individual moral merit. Symbol: a small open cream-and-mint evidence folder and one violet magnifying lens, in one rounded indigo enamel badge. Clearly conveys checking information. Documents blank, simple shapes, no seals or lettermarks.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/badge-evidence-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 30434
+        },
+        {
+          "file": "images/festival/badge-evidence-160.webp",
+          "width": 160,
+          "height": 160,
+          "bytes": 12116
+        }
+      ],
+      "use": "학급 진행 배지: 근거 확인",
+      "overlay": "-"
+    },
+    {
+      "id": "badge-revision",
+      "kind": "image",
+      "generator": "OpenAI built-in imagegen",
+      "model": "Tool did not expose a model identifier",
+      "createdDate": "2026-11-01",
+      "source": "assets/images/badge-revision.png",
+      "sourceSize": "1254x1254",
+      "sourceBytes": 1569097,
+      "alpha": true,
+      "prompt": "Generate ONE premium illustrated game badge, square 1:1 canvas, TRUE TRANSPARENT BACKGROUND. Use reference only for palette and painterly material rendering; do not include scene or people. A substantial tactile enamel-and-translucent-acrylic collectible emblem with indigo edge, mint, violet and warm apricot details, softly painted warm rim lighting matching a school festival game. Centered object entirely inside frame with 15% transparent margin. Elegant rounded dimensional craftsmanship, clear silhouette readable at 80px, a few broad shapes, no fine clutter. No text, letters, numbers, stars, rankings, trophy, award ribbons, logo or watermark. Process marker for a whole class, not individual moral merit. Symbol: two large interlocking adjustable rounded tiles, one mint and one violet, with a small warm apricot connector, in one rounded indigo enamel badge. Clearly conveys revising a shared rule together. No checkmark, scoring or perfect-solution symbol.",
+      "reference": "intro-desktop.png",
+      "postEdit": "없음 (앱용은 크기 축소 + WebP 변환만, scripts/optimize-images.mjs)",
+      "appFiles": [
+        {
+          "file": "images/festival/badge-revision-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 28022
+        },
+        {
+          "file": "images/festival/badge-revision-160.webp",
+          "width": 160,
+          "height": 160,
+          "bytes": 10416
+        }
+      ],
+      "use": "학급 진행 배지: 규칙 수정",
+      "overlay": "-"
+    }
+  ],
+  "audio": [
+    {
+      "id": "bgm-lobby",
+      "kind": "audio",
+      "generator": "ElevenLabs Eleven Music",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/bgm-lobby.mp3",
+      "appFiles": [
+        "audio/bgm-lobby.mp3"
+      ],
+      "bytes": 1457642,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "대기실·입장·인트로·라운드 1 루프(약 60초)"
+    },
+    {
+      "id": "bgm-investigation",
+      "kind": "audio",
+      "generator": "ElevenLabs Eleven Music",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/bgm-investigation.mp3",
+      "appFiles": [
+        "audio/bgm-investigation.mp3"
+      ],
+      "bytes": 1457642,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "라운드 2 조사 루프(약 60초)"
+    },
+    {
+      "id": "bgm-redesign",
+      "kind": "audio",
+      "generator": "ElevenLabs Eleven Music",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/bgm-redesign.mp3",
+      "appFiles": [
+        "audio/bgm-redesign.mp3"
+      ],
+      "bytes": 1457642,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "라운드 3·공동 약속 루프(약 60초)"
+    },
+    {
+      "id": "sfx-select",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-select.wav",
+      "appFiles": [
+        "audio/sfx-select.wav"
+      ],
+      "bytes": 93486,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "(예약) 버튼 선택음 — 현재 학생 기기는 무음이라 미사용"
+    },
+    {
+      "id": "sfx-submit",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-submit.wav",
+      "appFiles": [
+        "audio/sfx-submit.wav"
+      ],
+      "bytes": 154926,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "(예약) 응답 저장음 — 음향 출력 화면에서는 제출 이벤트가 없어 미사용"
+    },
+    {
+      "id": "sfx-clue",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-clue.wav",
+      "appFiles": [
+        "audio/sfx-clue.wav"
+      ],
+      "bytes": 284238,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "라운드 2 단서 공개 장면 진입"
+    },
+    {
+      "id": "sfx-transition",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-transition.wav",
+      "appFiles": [
+        "audio/sfx-transition.wav"
+      ],
+      "bytes": 192078,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "교사 장면 전환"
+    },
+    {
+      "id": "sfx-reveal",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-reveal.wav",
+      "appFiles": [
+        "audio/sfx-reveal.wav"
+      ],
+      "bytes": 384078,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "학급 결과 공개"
+    },
+    {
+      "id": "sfx-time",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-time.wav",
+      "appFiles": [
+        "audio/sfx-time.wav"
+      ],
+      "bytes": 192078,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "남은 시간 10초·마감"
+    },
+    {
+      "id": "sfx-ending",
+      "kind": "audio",
+      "generator": "ElevenLabs Sound Effects",
+      "createdDate": "2026-11-01",
+      "source": "assets/audio/sfx-ending.wav",
+      "appFiles": [
+        "audio/sfx-ending.wav"
+      ],
+      "bytes": 576078,
+      "prompt": "claude-prompts/03_ELEVENLABS_PROMPTS.txt 참고",
+      "postEdit": "파일명 정규화 외 없음. 재생 시 끝 20ms 를 잘라 루프, 1.2초 페이드인(코드)",
+      "use": "엔딩 장면 도착"
+    }
+  ],
+  "missing": [
+    {
+      "id": "bgm-reflection",
+      "kind": "audio",
+      "reason": "파일 미제공. 엔딩은 sfx-ending.wav 만 재생"
+    }
+  ]
+}

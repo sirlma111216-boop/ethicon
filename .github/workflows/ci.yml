@@ -1,0 +1,18 @@
+# PR 검사만 수행한다. 배포는 Cloudflare Workers Builds(main push)가 담당하므로 여기서 배포하지 않는다.
+name: ci
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npx vite build

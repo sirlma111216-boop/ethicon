@@ -1,0 +1,44 @@
+{
+  // 축제의 빈자리: AI 배정위원회 — Cloudflare Workers + Durable Objects 설정
+  // 대시보드의 Worker 이름과 이 name을 반드시 일치시킨다.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "festival-empty-seat",
+  "main": "./src/worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "upload_source_maps": true,
+  "observability": { "enabled": true },
+  "assets": {
+    // @cloudflare/vite-plugin 이 빌드 시 directory 를 dist/client 로 채운다.
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+    // /api, /ws 요청은 정적 자산보다 Worker 가 먼저 처리한다.
+    "run_worker_first": ["/api/*", "/ws", "/ws/*", "/healthz"]
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOM", "class_name": "RoomDO" },
+      { "name": "LIMITER", "class_name": "LimiterDO" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RoomDO", "LimiterDO"] }
+  ],
+  "vars": {
+    "APP_ENV": "production",
+    // 방 데이터 보존 상한(시간). 교사가 먼저 삭제할 수 있고, 이 시간이 지나면 자동 삭제된다.
+    "ROOM_TTL_HOURS": "24"
+  },
+  "env": {
+    "staging": {
+      "name": "festival-empty-seat-staging",
+      "vars": { "APP_ENV": "staging", "ROOM_TTL_HOURS": "24" },
+      "durable_objects": {
+        "bindings": [
+          { "name": "ROOM", "class_name": "RoomDO" },
+          { "name": "LIMITER", "class_name": "LimiterDO" }
+        ]
+      }
+    }
+  }
+}
