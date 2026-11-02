@@ -72,5 +72,6 @@ npm run sim -- http://localhost:5173 40
 ## 상태 (2026-11-02)
 
 - 구현·로컬 검증 완료: 멀티플레이 전 과정, 권한 분리, 재연결, 동률·미응답, 40명 동시 제출, 만료·삭제
-- 외부 연결 대기: GitHub 원격 저장소, Cloudflare 계정 연결 및 첫 배포 (DEPLOYMENT.md 2장)
+- 코드 원본: https://github.com/sirlma111216-boop/ethicon (main)
+- 외부 연결 대기: Cloudflare Workers Builds 연결 및 첫 배포 (DEPLOYMENT.md 2-2)
 - 자산 대기: 엔딩용 배경음악(`bgm-reflection.mp3`)은 제공되지 않아 엔딩은 효과음만 사용

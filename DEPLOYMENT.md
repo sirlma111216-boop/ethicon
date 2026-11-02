@@ -3,7 +3,7 @@
 대상: Cloudflare Workers(정적 자산 + API) + Durable Objects(방 상태, SQLite 저장소, WebSocket Hibernation).
 별도의 장기 실행 Node 서버는 없다. 코드 원본은 GitHub, 배포는 Cloudflare **Workers Builds**(main push 시 자동)이다.
 
-> 현재 상태(2026-11-02): 이 저장소는 로컬에서 빌드·테스트·40명 모의 접속 시뮬레이션까지 확인했다. **GitHub 원격 저장소 연결과 Cloudflare 계정 연결은 아직 되어 있지 않다**(이 환경에 `gh` 와 Cloudflare 로그인이 없음). 아래 "최초 연결 단계"를 사용자가 수행해야 실제 배포가 일어난다. 배포 주소는 아직 없다.
+> 현재 상태(2026-11-02): 로컬에서 빌드·테스트·40명 모의 접속 시뮬레이션까지 확인했고, 코드는 GitHub `https://github.com/sirlma111216-boop/ethicon` 의 `main` 에 푸시되어 있다. **Cloudflare 계정 연결(Workers Builds)은 아직 되어 있지 않다.** 아래 2-2 단계를 사용자가 수행해야 실제 배포가 일어난다. 배포 주소는 아직 없다.
 
 ## 1. 구성 요약
 
@@ -22,22 +22,9 @@
 
 ## 2. 최초 연결 단계 (사용자가 1회 수행)
 
-### 2-1. GitHub
+### 2-1. GitHub (완료)
 
-```bash
-git init -b main
-```
-```bash
-git add -A && git commit -m "feat: 축제의 빈자리 초기 구현"
-```
-1. GitHub 에서 빈 저장소를 만든다(예: `festival-empty-seat`). **기존 원격이 있으면 먼저 내용을 확인하고 덮어쓰지 않는다.**
-2. 원격을 연결하고 푸시한다.
-```bash
-git remote add origin https://github.com/<계정>/festival-empty-seat.git
-```
-```bash
-git push -u origin main
-```
+원격 `origin` = `https://github.com/sirlma111216-boop/ethicon.git`, 기본 브랜치 `main`. 이후 변경은 커밋 후 `git push` 하면 된다. 기존 기록을 덮어쓰는 강제 푸시는 하지 않는다.
 
 ### 2-2. Cloudflare Workers Builds 연결
 
