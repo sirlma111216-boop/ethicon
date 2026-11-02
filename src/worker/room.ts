@@ -50,11 +50,13 @@ import {
   type RoomDecisions,
   type ServerMessage,
   type SubmissionPayload,
+  type SurveyChoice,
   type Tally,
   type TeacherDecision,
   type TeacherState,
   type TeacherSummary,
 } from '../shared/types';
+import { BOT_ADJ, BOT_NOUNS, botPayload } from './bots';
 import { BARRIERS, CLUE_SECRETS, OPEN_QUESTION_BY_PACKAGE, TEACHER_NOTES } from './secretContent';
 import { clientMessageSchema, type ParsedClientMessage } from './validate';
 
@@ -81,6 +83,8 @@ interface RoomDoc {
   allocations: { r1?: AllocationResult; r3?: Comparison };
   ending?: EndingSummary;
   recentMessageIds: string[];
+  /** 연습용 봇이 다음에 제출할 시각(서버 시각). null 이면 예약 없음 */
+  botsDueAt?: number | null;
   deleted?: boolean;
 }
 
@@ -176,6 +180,12 @@ export class RoomDO extends DurableObject<Env> {
       );
       CREATE TABLE IF NOT EXISTS log (id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, kind TEXT NOT NULL, data TEXT NOT NULL);
     `);
+    // 기존 방(배포 전 생성)에도 봇 열을 추가한다. 이미 있으면 무시.
+    try {
+      this.sql.exec(`ALTER TABLE participants ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0`);
+    } catch {
+      /* already exists */
+    }
   }
 
   private loadDoc(): RoomDoc | null {
@@ -527,7 +537,14 @@ export class RoomDO extends DurableObject<Env> {
         throw new CommandError('not_allowed', '재투표에서는 동률인 선택지 중에서만 고를 수 있어요.');
       }
     }
-    const payload = msg.payload as SubmissionPayload;
+    this.storeSubmission(pid, round, doc.phase, msg.payload as SubmissionPayload);
+    this.bump();
+    this.send(ws, { type: 'ack', messageId: msg.messageId, ok: true, revision: doc.revision });
+    await this.broadcast();
+  }
+
+  /** 제출 저장(학생·봇 공용): 마지막 유효 응답으로 교체, 자유 응답은 승인 대기열로 */
+  private storeSubmission(pid: string, round: PhaseRound, phase: Phase, payload: SubmissionPayload) {
     const now = Date.now();
     // 마지막 유효 응답으로 교체 (1인 1표)
     this.sql.exec(
@@ -535,7 +552,7 @@ export class RoomDO extends DurableObject<Env> {
        ON CONFLICT(round_id, participant_id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at`,
       round.roundId,
       pid,
-      doc.phase,
+      phase,
       JSON.stringify(stripText(payload)),
       now,
     );
@@ -555,9 +572,6 @@ export class RoomDO extends DurableObject<Env> {
         now,
       );
     }
-    this.bump();
-    this.send(ws, { type: 'ack', messageId: msg.messageId, ok: true, revision: doc.revision });
-    await this.broadcast();
   }
 
   // ---------- 교사 명령 ----------
@@ -645,6 +659,7 @@ export class RoomDO extends DurableObject<Env> {
         };
         delete doc.tallies[doc.phase];
         doc.paused = false;
+        this.armBots(doc, 2500);
         this.log('rerun', { phase: doc.phase, limitTo, seconds });
         break;
       }
@@ -674,6 +689,7 @@ export class RoomDO extends DurableObject<Env> {
       case 'resume':
         if (!doc.paused) throw new CommandError('bad_state', '일시정지 상태가 아니에요.');
         doc.paused = false;
+        this.armBots(doc, 1500);
         if (round && round.pausedRemainingMs !== null && !round.locked) {
           round.endsAt = now + round.pausedRemainingMs;
           round.pausedRemainingMs = null;
@@ -709,6 +725,12 @@ export class RoomDO extends DurableObject<Env> {
         doc.locked = true;
         this.log('ended', {});
         break;
+      case 'add_bots':
+        this.addBots(doc, c.count);
+        break;
+      case 'remove_bots':
+        this.removeBots(doc);
+        break;
       case 'delete_room':
         this.log('deleted', {});
         this.send(ws, { type: 'ack', messageId: msg.messageId, ok: true, revision: doc.revision + 1 });
@@ -741,6 +763,7 @@ export class RoomDO extends DurableObject<Env> {
         rerunCount: 0,
         durationSeconds: meta.defaultSeconds,
       };
+      this.armBots(doc, 2500);
     }
     if (phase === 'ending' && !doc.ending) doc.ending = this.buildEnding(doc);
     this.log('phase', { phase });
@@ -1115,7 +1138,7 @@ export class RoomDO extends DurableObject<Env> {
       publicToken: doc.publicToken,
       pendingTexts: shuffleWithSeed(pending, doc.lotterySeed),
       notes: TEACHER_NOTES[doc.phase] ?? null,
-      participants: { connected, total: this.participantCount() },
+      participants: { connected, total: this.participantCount(), bots: this.botCount() },
       responseCount: round ? Number(this.sql.exec<{ n: number }>(`SELECT COUNT(*) AS n FROM submissions WHERE round_id = ?`, round.roundId).one().n) : 0,
       canAdvance: !reason,
       advanceBlockedReason: reason,
@@ -1180,6 +1203,7 @@ export class RoomDO extends DurableObject<Env> {
     let next = doc.expiresAt;
     const round = doc.rounds[doc.phase];
     if (round && round.endsAt && !round.locked && !doc.paused) next = Math.min(next, round.endsAt);
+    if (doc.botsDueAt) next = Math.min(next, doc.botsDueAt);
     await this.ctx.storage.setAlarm(next);
   }
 
@@ -1200,7 +1224,107 @@ export class RoomDO extends DurableObject<Env> {
       this.bump();
       await this.broadcast();
     }
+    if (doc.botsDueAt && now >= doc.botsDueAt) await this.runBots(doc);
     await this.scheduleAlarm();
+  }
+
+  // ---------- 연습용 봇 ----------
+
+  private botCount(): number {
+    return Number(this.sql.exec<{ n: number }>(`SELECT COUNT(*) AS n FROM participants WHERE is_bot = 1`).one().n);
+  }
+
+  private armBots(doc: RoomDoc, delayMs: number) {
+    if (this.botCount() === 0) {
+      doc.botsDueAt = null;
+      return;
+    }
+    doc.botsDueAt = Date.now() + delayMs;
+  }
+
+  private addBots(doc: RoomDoc, count: number) {
+    if (doc.phase === 'closed') throw new CommandError('bad_state', '수업이 끝난 방에는 봇을 추가할 수 없어요.');
+    const current = this.participantCount();
+    const room = Math.max(0, MAX_STUDENTS - current);
+    const n = Math.min(count, room);
+    if (n === 0) throw new CommandError('full', `정원(${MAX_STUDENTS}명)이 차서 봇을 더 추가할 수 없어요.`);
+    const used = new Set(this.sql.exec<{ pseudonym: string }>(`SELECT pseudonym FROM participants`).toArray().map((r) => r.pseudonym));
+    const counts = new Map<PerspectiveId, number>(PERSPECTIVES.map((p) => [p.id, 0]));
+    for (const r of this.sql.exec<{ perspective: PerspectiveId; n: number }>(`SELECT perspective, COUNT(*) AS n FROM participants GROUP BY perspective`).toArray()) {
+      counts.set(r.perspective, Number(r.n));
+    }
+    const now = Date.now();
+    for (let i = 0; i < n; i++) {
+      let pseudonym = '';
+      for (let k = 0; k < 300 && !pseudonym; k++) {
+        const cand = `${BOT_ADJ[Math.floor(Math.random() * BOT_ADJ.length)]} ${BOT_NOUNS[Math.floor(Math.random() * BOT_NOUNS.length)]} ${Math.floor(Math.random() * 90) + 10}`;
+        if (!used.has(cand)) pseudonym = cand;
+      }
+      if (!pseudonym) pseudonym = `봇 ${current + i + 1}`;
+      used.add(pseudonym);
+      const min = Math.min(...counts.values());
+      const pool = [...counts.entries()].filter(([, c]) => c === min).map(([p]) => p);
+      const perspective = pool[Math.floor(Math.random() * pool.length)]!;
+      counts.set(perspective, (counts.get(perspective) ?? 0) + 1);
+      // 봇은 로그인할 수 없다: 토큰을 발급하지 않고 임의 값만 저장
+      this.sql.exec(
+        `INSERT INTO participants (id, token_hash, pseudonym, avatar, perspective, joined_at, last_seen, is_bot) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+        `b_${randomToken(9)}`,
+        `bot:${randomToken(24)}`,
+        pseudonym,
+        Math.floor(Math.random() * AVATAR_EMOJI.length),
+        perspective,
+        now,
+        now,
+      );
+    }
+    this.log('bots_added', { count: n });
+    const round = doc.rounds[doc.phase];
+    if (round && !round.locked && !round.revealed && !doc.paused) this.armBots(doc, 1500);
+  }
+
+  private removeBots(doc: RoomDoc) {
+    // 봇의 제출·자유 응답까지 함께 제거한다.
+    this.sql.exec(`DELETE FROM submissions WHERE participant_id IN (SELECT id FROM participants WHERE is_bot = 1)`);
+    this.sql.exec(`DELETE FROM texts WHERE participant_id IN (SELECT id FROM participants WHERE is_bot = 1)`);
+    const r = this.sql.exec(`DELETE FROM participants WHERE is_bot = 1`);
+    doc.botsDueAt = null;
+    this.log('bots_removed', { count: r.rowsWritten });
+  }
+
+  /** 아직 제출하지 않은 봇 일부가 제출한다. 남은 봇이 있으면 1~2초 뒤 다시 예약한다. */
+  private async runBots(doc: RoomDoc) {
+    doc.botsDueAt = null;
+    const round = doc.rounds[doc.phase];
+    const kind = PHASE_KIND[doc.phase];
+    if (!round || !kind || round.locked || round.revealed || doc.paused) {
+      this.saveDoc();
+      return;
+    }
+    const pending = this.sql
+      .exec<{ id: string; perspective: PerspectiveId }>(
+        `SELECT id, perspective FROM participants WHERE is_bot = 1 AND id NOT IN (SELECT participant_id FROM submissions WHERE round_id = ?)`,
+        round.roundId,
+      )
+      .toArray();
+    if (pending.length === 0) {
+      this.saveDoc();
+      return;
+    }
+    const preRound = doc.rounds.pre_survey;
+    const batch = pending.sort(() => Math.random() - 0.5).slice(0, Math.max(1, Math.ceil(pending.length / 3)));
+    for (const b of batch) {
+      let before: SurveyChoice | undefined;
+      if (doc.phase === 'r5_post' && preRound) {
+        const row = this.sql.exec<{ payload: string }>(`SELECT payload FROM submissions WHERE round_id = ? AND participant_id = ?`, preRound.roundId, b.id).toArray()[0];
+        if (row) before = (JSON.parse(row.payload) as { choice: SurveyChoice }).choice;
+      }
+      const payload = botPayload(doc.phase, round, b.perspective, before);
+      if (payload) this.storeSubmission(b.id, round, doc.phase, payload);
+    }
+    if (pending.length > batch.length) doc.botsDueAt = Date.now() + 1000 + Math.floor(Math.random() * 1200);
+    this.bump();
+    await this.broadcast();
   }
 
   /** 모든 데이터 삭제. 소켓에 안내 후 닫는다. */

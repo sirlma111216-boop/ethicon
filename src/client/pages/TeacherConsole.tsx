@@ -128,7 +128,7 @@ export function TeacherConsole({ code }: { code: string }) {
           <span className="brand">교사 진행 · 축제의 빈자리</span>
           <span className="pill indigo mono">코드 {state.code}</span>
           <span className="small muted">
-            참여 {teacher.participants.total}명 (접속 {teacher.participants.connected}) · {state.appEnv}
+            참여 {teacher.participants.total}명 (접속 {teacher.participants.connected}{teacher.participants.bots > 0 ? ` · 봇 ${teacher.participants.bots}` : ''}) · {state.appEnv}
           </span>
         </div>
         <div className="row" style={{ gap: 8 }}>
@@ -377,6 +377,26 @@ export function TeacherConsole({ code }: { code: string }) {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          <div className="card compact stack" aria-label="연습용 봇 학생">
+            <p className="h3" style={{ margin: 0 }}>
+              연습용 봇 학생 <span className="pill ghost">{teacher.participants.bots}명</span>
+            </p>
+            <p className="small muted" style={{ margin: 0 }}>
+              혼자서 전체 흐름을 미리 돌려볼 때 씁니다. 봇은 활동이 열리면 몇 초에 걸쳐 그럴듯한 답(자유 응답 포함)을 제출하고, 동률·재투표·교사 결정도 겪을 수 있어요. 봇도 참여 인원과 집계에 포함되므로 <strong>실제 수업 전에는 반드시 제거</strong>하세요.
+            </p>
+            <div className="row">
+              <button className="btn sm ghost" onClick={() => run({ op: 'add_bots', count: 10 }, { expectRevision: false })} disabled={state.phase === 'closed'}>
+                봇 10명 추가
+              </button>
+              <button className="btn sm ghost" onClick={() => run({ op: 'add_bots', count: 25 }, { expectRevision: false })} disabled={state.phase === 'closed'}>
+                봇 25명 추가
+              </button>
+              <button className="btn sm outline" onClick={() => run({ op: 'remove_bots' }, { expectRevision: false })} disabled={teacher.participants.bots === 0}>
+                봇 모두 제거
+              </button>
             </div>
           </div>
 

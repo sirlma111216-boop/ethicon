@@ -45,6 +45,10 @@ npm run dev
 ```
 교사: http://localhost:5173/teacher → 방 만들기 → 공개 화면 "새 창으로 열기" → 학생은 시크릿 창에서 http://localhost:5173/join/코드
 
+## 혼자 미리 돌려보기
+
+교사 화면의 **연습용 봇 학생** 패널에서 봇 10명 또는 25명을 추가하면, 봇이 활동마다 몇 초에 걸쳐 그럴듯한 답을 제출해 교사 혼자 45분 흐름 전체를 리허설할 수 있습니다. 실제 수업 전에는 `봇 모두 제거`를 누릅니다. 자동 검증은 `node scripts/bot-rehearsal.mjs http://localhost:5173 25`.
+
 ## 검사·테스트
 
 ```bash
@@ -72,6 +76,6 @@ npm run sim -- http://localhost:5173 40
 ## 상태 (2026-11-02)
 
 - 구현·로컬 검증 완료: 멀티플레이 전 과정, 권한 분리, 재연결, 동률·미응답, 40명 동시 제출, 만료·삭제
-- 코드 원본: https://github.com/sirlma111216-boop/ethicon (main)
-- 외부 연결 대기: Cloudflare Workers Builds 연결 및 첫 배포 (DEPLOYMENT.md 2-2)
+- 코드 원본: https://github.com/sirlma111216-boop/ethicon (main) → Cloudflare Workers Builds 자동배포
+- 운영 주소: https://ethicon.labbitory.com (사용자가 대시보드에서 연결·확인함)
 - 자산 대기: 엔딩용 배경음악(`bgm-reflection.mp3`)은 제공되지 않아 엔딩은 효과음만 사용

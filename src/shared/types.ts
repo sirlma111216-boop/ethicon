@@ -183,7 +183,7 @@ export interface TeacherState {
   publicToken: string;
   pendingTexts: PendingText[];
   notes: TeacherNotes | null;
-  participants: { connected: number; total: number };
+  participants: { connected: number; total: number; bots: number };
   /** 라운드별 응답 수 (집계 전에도 보임, 분포는 안 보임) */
   responseCount: number;
   canAdvance: boolean;
@@ -253,7 +253,9 @@ export type TeacherCommandBody =
   | { op: 'sound_screen'; screen: 'teacher' | 'public' }
   | { op: 'duck'; ducked: boolean }
   | { op: 'end' }
-  | { op: 'delete_room' };
+  | { op: 'delete_room' }
+  | { op: 'add_bots'; count: number }
+  | { op: 'remove_bots' };
 
 export type ServerMessage =
   | { type: 'snapshot'; state: PublicState; me?: MeState; teacher?: TeacherState }

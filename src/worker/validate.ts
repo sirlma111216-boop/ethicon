@@ -74,6 +74,8 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
       z.object({ op: z.literal('duck'), ducked: z.boolean() }),
       z.object({ op: z.literal('end') }),
       z.object({ op: z.literal('delete_room') }),
+      z.object({ op: z.literal('add_bots'), count: z.number().int().min(1).max(40) }),
+      z.object({ op: z.literal('remove_bots') }),
     ]),
   }),
 ]);

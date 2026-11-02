@@ -3,7 +3,7 @@
 대상: Cloudflare Workers(정적 자산 + API) + Durable Objects(방 상태, SQLite 저장소, WebSocket Hibernation).
 별도의 장기 실행 Node 서버는 없다. 코드 원본은 GitHub, 배포는 Cloudflare **Workers Builds**(main push 시 자동)이다.
 
-> 현재 상태(2026-11-02): 로컬에서 빌드·테스트·40명 모의 접속 시뮬레이션까지 확인했고, 코드는 GitHub `https://github.com/sirlma111216-boop/ethicon` 의 `main` 에 푸시되어 있다. **Cloudflare 계정 연결(Workers Builds)은 아직 되어 있지 않다.** 아래 2-2 단계를 사용자가 수행해야 실제 배포가 일어난다. 배포 주소는 아직 없다.
+> 현재 상태(2026-11-02): GitHub `https://github.com/sirlma111216-boop/ethicon` 의 `main` 이 Cloudflare Workers Builds 에 연결되어 자동배포되며, 운영 주소는 `https://ethicon.labbitory.com` 이다(사용자가 대시보드에서 연결하고 교사 화면이 뜨는 것을 확인함). 운영 환경에서의 40명 시뮬레이션은 아직 돌리지 않았다.
 
 ## 1. 구성 요약
 
