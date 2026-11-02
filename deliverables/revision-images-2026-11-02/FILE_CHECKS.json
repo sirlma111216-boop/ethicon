@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ai-kiosk",
+    "width": 1672,
+    "height": 941,
+    "transparentCorner": false,
+    "sha256": "E34F3CEEDE201A636AF9CCE1A70842D9B09062F498E1DA2D321C1421B31EE2E5"
+  },
+  {
+    "id": "appeal-morning",
+    "width": 1672,
+    "height": 941,
+    "transparentCorner": false,
+    "sha256": "4E372A9D562444AC4BB1727468A7EC660B7F5115AABFA6E673F0378BB268DC64"
+  },
+  {
+    "id": "announcement-board",
+    "width": 1672,
+    "height": 941,
+    "transparentCorner": false,
+    "sha256": "E3D8861E600190462BB0EBF84451FC20FEB96F9A4D54621CE7F60264DDEDFE61"
+  },
+  {
+    "id": "principle-fairness",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": true,
+    "sha256": "2DEFC48A4C7799E1D46127005F9141871503C2560C1C788263E9EDCEDE012E92"
+  },
+  {
+    "id": "principle-transparency",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": true,
+    "sha256": "3A5E54B57BC78EDE1C736CABD62E5F7E18C313908063062E449CB6A0B43FEDBE"
+  },
+  {
+    "id": "ai-kiosk-mobile",
+    "width": 941,
+    "height": 1672,
+    "transparentCorner": false,
+    "sha256": "7CB8F8BFBE3F338E497DEF3687F4053CBA038B43A11A1577EB93D0270D2223E9"
+  },
+  {
+    "id": "applicant-a01",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "B2C8A0F6735D77B9B884014EE888263B9D6F98456CE3DC32C142327889DC314F"
+  },
+  {
+    "id": "applicant-a02",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "4CBDC7A29EEE5B1AAB11AC46277EA65A90CE47E6ADE3E00149CB3AAD0CDF8305"
+  },
+  {
+    "id": "applicant-a03",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "C4AA1F6DDC229C7CC0806AE1909BBA6576A36673FCB5FC287823A2142861F1D3"
+  },
+  {
+    "id": "applicant-a04",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "A29614BADD2C5E0D4A108B436EBAB8A79DA817D6D0709B847DE1A31ED108E724"
+  },
+  {
+    "id": "applicant-a05",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "5286BDF165586356F9519254757A198A33A71162569974B26F7DB9C1B66D9BEC"
+  },
+  {
+    "id": "applicant-a06",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "DA75CB60F3E7073238A6A589185267604BCD29A0728422F2ED93DD89DB340B14"
+  },
+  {
+    "id": "applicant-a07",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "DA788E98C92554CFAD956A2EEDF42E28DAB23FEC8C345BCD27B6ADE38DC22320"
+  },
+  {
+    "id": "applicant-a08",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "F5719A4E8AB00D6BD0DC844BEABF020F922E9DEF588B0F768B9950A5DD292998"
+  },
+  {
+    "id": "applicant-a09",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "FE4F48887CFED2B851377A6A98BB4B4560C5AD5EFF4850E049B2B8E7018491F3"
+  },
+  {
+    "id": "applicant-a10",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "73B14CF42429EB7292F93AEBE0CE2B74A0E521BF159E43D6A85F59248F3690F8"
+  },
+  {
+    "id": "applicant-a11",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "0BDF9980F882EF5177B76605C553E64B9E0E4AB7E3BB0EAD2BF6774B7D9A6962"
+  },
+  {
+    "id": "applicant-a12",
+    "width": 1254,
+    "height": 1254,
+    "transparentCorner": false,
+    "sha256": "8F74A33486ADAC7EA9C0CA17689D398F495A60D446329552715C548F5F5216FD"
+  }
+]

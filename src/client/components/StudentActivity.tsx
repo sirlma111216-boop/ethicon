@@ -4,6 +4,7 @@ import { CHECK_OPTIONS, CHECK_QUESTION, CLUES, FREE_TEXT_MAX, PACKAGES, QUESTION
 import type { CheckChoice, ClueId, MeState, PackageId, PublicState, SubmissionPayload, VerdictChoice } from '../../shared/types';
 import { imgSrc, imgSrcSet, type ImageId } from '../lib/images';
 import { AiVerdictCard } from './ResultViews';
+import { Picture } from './ui';
 import { useToast } from './ui';
 
 export interface ActivityProps {
@@ -74,6 +75,20 @@ function useSubmitter(submit: ActivityProps['submit'], preview?: boolean) {
   return { busy, go };
 }
 
+/** 결정 1·2 상단의 AI 배정기 키아트. 모바일 세로에서는 세로 구도 원본을 아래쪽(기계·인물)이 보이게 자른다. */
+export function KioskHeader({ eyebrow, title, line }: { eyebrow: string; title: string; line: string }) {
+  return (
+    <div className="scene kiosk-header">
+      <Picture id="ai-kiosk" mobileId="ai-kiosk-mobile" sizes="(max-width: 767px) 100vw, 1200px" />
+      <div className="overlay">
+        <p className="eyebrow">{eyebrow}</p>
+        <h2 className="h1">{title}</h2>
+        <p style={{ color: 'var(--ink-dim)' }}>{line}</p>
+      </div>
+    </div>
+  );
+}
+
 function Frame({ question, children, hint, eyebrow }: { question: string; children: ReactNode; hint?: string; eyebrow?: string }) {
   return (
     <section className="paper fade-in" aria-label={question}>
@@ -96,6 +111,8 @@ export function CheckActivity({ state, me, submit, preview, post }: ActivityProp
   const { busy, go } = useSubmitter(submit, preview);
   const beforeLabel = before && before.kind === 'precheck' ? CHECK_OPTIONS.find((o) => o.id === before.choice)?.label : null;
   return (
+    <div className="stack">
+    {!post && <KioskHeader eyebrow="결정 1" title="AI 배정기가 추천한다면" line="운영팀이 올해 처음 들인 AI 배정기. 자료대로 계산한 결과는 공정할까요?" />}
     <Frame eyebrow={post ? '결정 6 · 다시, 내 생각' : '결정 1 · 지금 내 생각'} question={CHECK_QUESTION} hint={post ? '오늘 본 것을 떠올리며 다시 답해요. 생각을 바꿔도, 지켜도 점수는 없어요. 이유를 한 줄 적어도 좋아요.' : '지금 생각을 하나만 골라요. 정답은 없고, 내 답은 공개되지 않아요. 수업 끝에 다시 답할 거예요.'}>
       {post && beforeLabel && (
         <div className="banner" style={{ background: 'var(--paper-2)', color: 'var(--paper-ink)' }}>
@@ -110,6 +127,7 @@ export function CheckActivity({ state, me, submit, preview, post }: ActivityProp
       {post && <ReasonBox value={reason} onChange={setReason} label="그렇게 생각한 이유 한 줄" />}
       <SubmitBar hint="하나를 고르면 제출할 수 있어요" canSubmit={!!choice} submitted={me.submittedThisRound} busy={busy} locked={state.round.locked} onSubmit={() => choice && go(post ? { kind: 'postcheck', choice, reason: reason || undefined } : { kind: 'precheck', choice })} />
     </Frame>
+    </div>
   );
 }
 
@@ -123,6 +141,7 @@ export function VerdictActivity({ state, me, submit, preview }: ActivityProps) {
   const options = VERDICT_OPTIONS.filter((o) => !limit || limit.includes(o.id));
   return (
     <div className="stack">
+      <KioskHeader eyebrow="결정 2" title="AI 배정기의 추천이 나왔다" line="빈 칸 여섯 개에 여섯 명의 이름. 우리 위원회는 이 추천을 어떻게 할까요?" />
       {state.allocations.r1 && <AiVerdictCard result={state.allocations.r1} />}
       <Frame eyebrow="결정 2" question={VERDICT_QUESTION} hint={limit ? '동률 재투표예요. 동률이었던 선택지 중에서만 고를 수 있어요.' : '세 가지 중 하나. 이 선택에 따라 다음 장면이 달라져요.'}>
         <div className="choice-list">

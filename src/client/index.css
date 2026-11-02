@@ -994,3 +994,54 @@ table.plain td {
   font-size: clamp(20px, 2vw, 30px);
   padding: 16px 22px;
 }
+
+/* ---------- 2026-11-02 추가 이미지 ---------- */
+.kiosk-header {
+  aspect-ratio: 16 / 9;
+}
+.kiosk-header picture,
+.kiosk-header picture img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .kiosk-header {
+    aspect-ratio: 1 / 1;
+  }
+  .kiosk-header picture img {
+    object-position: center 78%;
+  }
+  .kiosk-header .overlay {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 18px;
+    background: linear-gradient(180deg, rgba(6, 8, 41, 0.78) 0%, rgba(6, 8, 41, 0.35) 45%, rgba(6, 8, 41, 0) 70%);
+  }
+}
+.story-image {
+  width: 100%;
+  border-radius: 14px;
+  margin: 8px 0 12px;
+}
+.applicant .portrait-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* 한글 제목은 어절 단위로 줄바꿈 */
+.display,
+.h1,
+.h2,
+.h3,
+.task-strip,
+.choice .title {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}

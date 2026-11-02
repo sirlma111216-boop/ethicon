@@ -1,5 +1,7 @@
 # 추가 이미지 요청 목록 (개편 후)
 
+> **2026-11-02 수령 완료.** 아래 18장이 모두 도착해 앱에 연결했다(`src/client/lib/images.ts` 의 PROVIDED·PORTRAITS). 이 문서는 요청 당시 프롬프트 기록으로 보존한다.
+
 개편으로 새 장면이 생겼습니다. 아래 이미지가 **없어도 앱은 동작**하며, 그때까지는 기존 자산을 대신 씁니다(`src/client/lib/images.ts` 의 FALLBACK). 파일을 받으면 `assets/images/<id>.png` 에 넣고 `npm run images` 를 돌린 뒤 `images.ts` 의 `PROVIDED` 목록에 id 를 추가하면 바로 반영됩니다.
 
 기존 18장과 같은 도구(OpenAI built-in imagegen)와 같은 공통 스타일 문장을 쓰면 화풍이 맞습니다. 모든 이미지는 **글자·숫자·로고·UI 없음**, 간판과 카드는 빈칸, 한국 중학생은 가상의 인물로 성별·외모에 역할을 고정하지 않습니다.

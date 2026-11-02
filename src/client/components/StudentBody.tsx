@@ -124,7 +124,7 @@ export function StudentBody({ state, me, submit, portrait, preview }: Props) {
     case 'verdict_result':
       return (
         <div className="stack">
-          <Scene image="appeal-morning">
+          <Scene image={state.verdictScene?.verdict === 'reject' ? 'ai-kiosk' : 'appeal-morning'}>
             <p className="eyebrow">우리 결정의 결과</p>
             <h2 className="h1">{state.verdictScene?.title ?? '…'}</h2>
           </Scene>

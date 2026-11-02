@@ -28,6 +28,14 @@ const PLAN = {
   'badge-perspective': [320, 160],
   'badge-evidence': [320, 160],
   'badge-revision': [320, 160],
+  // 2026-11-02 추가분
+  'ai-kiosk': [1672, 1280],
+  'ai-kiosk-mobile': [941, 720],
+  'appeal-morning': [1672, 1280],
+  'announcement-board': [1672, 1280],
+  'principle-fairness': [320, 160],
+  'principle-transparency': [320, 160],
+  ...Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`applicant-a${String(i + 1).padStart(2, '0')}`, [320, 160]])),
 };
 
 await mkdir(OUT, { recursive: true });
@@ -47,7 +55,7 @@ for (const file of files) {
     const name = `${id}-${w}.webp`;
     const buf = await sharp(input)
       .resize({ width: Math.min(w, meta.width ?? w), withoutEnlargement: true })
-      .webp({ quality: id.startsWith('badge') ? 90 : 82, alphaQuality: 100, effort: 5 })
+      .webp({ quality: id.startsWith('badge') || id.startsWith('principle') ? 90 : 82, alphaQuality: 100, effort: 5 })
       .toBuffer();
     await writeFile(path.join(OUT, name), buf);
     const m = await sharp(buf).metadata();

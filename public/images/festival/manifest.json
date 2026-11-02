@@ -1,5 +1,357 @@
 [
   {
+    "id": "ai-kiosk-mobile",
+    "source": "assets/images/ai-kiosk-mobile.png",
+    "sourceWidth": 941,
+    "sourceHeight": 1672,
+    "sourceBytes": 2130281,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/ai-kiosk-mobile-941.webp",
+        "width": 941,
+        "height": 1672,
+        "bytes": 129682
+      },
+      {
+        "file": "images/festival/ai-kiosk-mobile-720.webp",
+        "width": 720,
+        "height": 1279,
+        "bytes": 89752
+      }
+    ]
+  },
+  {
+    "id": "ai-kiosk",
+    "source": "assets/images/ai-kiosk.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2202783,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/ai-kiosk-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 151422
+      },
+      {
+        "file": "images/festival/ai-kiosk-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 107746
+      }
+    ]
+  },
+  {
+    "id": "announcement-board",
+    "source": "assets/images/announcement-board.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2262299,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/announcement-board-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 176950
+      },
+      {
+        "file": "images/festival/announcement-board-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 124030
+      }
+    ]
+  },
+  {
+    "id": "appeal-morning",
+    "source": "assets/images/appeal-morning.png",
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "sourceBytes": 2197812,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/appeal-morning-1672.webp",
+        "width": 1672,
+        "height": 941,
+        "bytes": 163168
+      },
+      {
+        "file": "images/festival/appeal-morning-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "bytes": 115908
+      }
+    ]
+  },
+  {
+    "id": "applicant-a01",
+    "source": "assets/images/applicant-a01.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2097644,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a01-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 14756
+      },
+      {
+        "file": "images/festival/applicant-a01-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5342
+      }
+    ]
+  },
+  {
+    "id": "applicant-a02",
+    "source": "assets/images/applicant-a02.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2076146,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a02-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 13134
+      },
+      {
+        "file": "images/festival/applicant-a02-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5014
+      }
+    ]
+  },
+  {
+    "id": "applicant-a03",
+    "source": "assets/images/applicant-a03.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2156306,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a03-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 13346
+      },
+      {
+        "file": "images/festival/applicant-a03-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5004
+      }
+    ]
+  },
+  {
+    "id": "applicant-a04",
+    "source": "assets/images/applicant-a04.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2106136,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a04-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 13884
+      },
+      {
+        "file": "images/festival/applicant-a04-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5240
+      }
+    ]
+  },
+  {
+    "id": "applicant-a05",
+    "source": "assets/images/applicant-a05.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2204655,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a05-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 12708
+      },
+      {
+        "file": "images/festival/applicant-a05-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 4672
+      }
+    ]
+  },
+  {
+    "id": "applicant-a06",
+    "source": "assets/images/applicant-a06.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2102266,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a06-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 13926
+      },
+      {
+        "file": "images/festival/applicant-a06-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5184
+      }
+    ]
+  },
+  {
+    "id": "applicant-a07",
+    "source": "assets/images/applicant-a07.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2097824,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a07-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 14348
+      },
+      {
+        "file": "images/festival/applicant-a07-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5400
+      }
+    ]
+  },
+  {
+    "id": "applicant-a08",
+    "source": "assets/images/applicant-a08.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2078358,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a08-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 12618
+      },
+      {
+        "file": "images/festival/applicant-a08-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 4812
+      }
+    ]
+  },
+  {
+    "id": "applicant-a09",
+    "source": "assets/images/applicant-a09.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2125756,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a09-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 14634
+      },
+      {
+        "file": "images/festival/applicant-a09-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5420
+      }
+    ]
+  },
+  {
+    "id": "applicant-a10",
+    "source": "assets/images/applicant-a10.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2042696,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a10-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 12940
+      },
+      {
+        "file": "images/festival/applicant-a10-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 4878
+      }
+    ]
+  },
+  {
+    "id": "applicant-a11",
+    "source": "assets/images/applicant-a11.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2133017,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a11-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 15120
+      },
+      {
+        "file": "images/festival/applicant-a11-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 5590
+      }
+    ]
+  },
+  {
+    "id": "applicant-a12",
+    "source": "assets/images/applicant-a12.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2093553,
+    "hasAlpha": false,
+    "outputs": [
+      {
+        "file": "images/festival/applicant-a12-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 11122
+      },
+      {
+        "file": "images/festival/applicant-a12-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 4288
+      }
+    ]
+  },
+  {
     "id": "badge-evidence",
     "source": "assets/images/badge-evidence.png",
     "sourceWidth": 1254,
@@ -326,6 +678,50 @@
         "width": 320,
         "height": 320,
         "bytes": 16858
+      }
+    ]
+  },
+  {
+    "id": "principle-fairness",
+    "source": "assets/images/principle-fairness.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 1804715,
+    "hasAlpha": true,
+    "outputs": [
+      {
+        "file": "images/festival/principle-fairness-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 25316
+      },
+      {
+        "file": "images/festival/principle-fairness-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 10300
+      }
+    ]
+  },
+  {
+    "id": "principle-transparency",
+    "source": "assets/images/principle-transparency.png",
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "sourceBytes": 2024706,
+    "hasAlpha": true,
+    "outputs": [
+      {
+        "file": "images/festival/principle-transparency-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 28582
+      },
+      {
+        "file": "images/festival/principle-transparency-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 11598
       }
     ]
   },

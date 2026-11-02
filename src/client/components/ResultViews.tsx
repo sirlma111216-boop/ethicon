@@ -1,7 +1,7 @@
 // 공개 후 결과 화면과 이야기 장면: 학생·공개 화면·교사 화면이 공유한다. 집계는 서버가 계산한 값만 표시한다.
 import { AI_AGENT, APPLICANTS, CHECK_OPTIONS, CLUES, PACKAGES, QUESTION_CANDIDATES, VERDICT_OPTIONS, applicantById, applyTime, packageById, type Applicant } from '../../shared/content';
 import type { AllocationResult, EndingSummary, Phase, PublicState, VerdictScene } from '../../shared/types';
-import { imgSrc, portraitSrc, type ImageId } from '../lib/images';
+import { ALT, imgSrc, imgSrcSet, portraitSrc, type ImageId } from '../lib/images';
 import { AllocationView, BadgeRow, ClueCardView, ComparisonView, PerspectiveBoardView, TallyBars } from './ui';
 
 const packageLabels = Object.fromEntries(PACKAGES.map((p) => [p.id, p.name]));
@@ -127,6 +127,9 @@ export function VerdictSceneView({ scene, state }: { scene: VerdictScene; state:
       <div className="paper">
         <p className="eyebrow" style={{ color: '#8a2a6b' }}>우리 반의 결정: {verdictLabels[scene.verdict]}</p>
         <h3 className="h2">{scene.title}</h3>
+        {scene.verdict === 'approve' && (
+          <img className="story-image" src={imgSrc('announcement-board', 1280)} srcSet={imgSrcSet('announcement-board')} sizes="(max-width: 767px) 100vw, 720px" alt={ALT['announcement-board']} loading="lazy" />
+        )}
         {scene.story.map((s, i) => (
           <p key={i} style={{ fontSize: 18, margin: '8px 0' }}>
             {s}
@@ -378,7 +381,7 @@ export function PrinciplesBlock({ e }: { e: EndingSummary }) {
     <div className="grid-2">
       {e.principles.map((p) => (
         <div key={p.id} className="paper compact" style={{ display: 'flex', gap: 12 }}>
-          <img src={imgSrc(p.id === 'fairness' ? 'principle-fairness' : ('principle-transparency' as ImageId), 160)} alt="" width={56} height={56} />
+          <img src={imgSrc(p.id === 'fairness' ? 'principle-fairness' : ('principle-transparency' as ImageId), 320)} alt="" width={84} height={84} style={{ flex: '0 0 auto' }} />
           <div>
             <p className="eyebrow" style={{ color: '#8a2a6b', margin: 0 }}>대한민국 인공지능 윤리원칙</p>
             <p className="h3" style={{ margin: '2px 0' }}>{p.name}</p>

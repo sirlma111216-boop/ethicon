@@ -16,6 +16,16 @@
 | 사용 원칙 | 제목·안내·버튼·수치·학급 결정은 이미지에 굽지 않고 HTML/CSS 로 올린다. 그림 속 티켓·인원·연결선 수를 게임 데이터로 읽지 않는다. 엔딩 결과는 생성 이미지에 미리 그리지 않고 빈 게시판 위에 실시간 데이터로 표시한다. |
 | 초기 기획 문서 | `claude-prompts/02_IMAGEN_PROMPTS.txt` 는 최초 기획의 보관 문서이며 실제 제작 지시가 아니다. |
 
+## 1-1. 개편 후 추가 이미지 18장 (2026-11-02)
+
+| 항목 | 내용 |
+|---|---|
+| 제작 도구 | OpenAI built-in imagegen (기존 키아트를 참조 이미지로 사용) |
+| 구성 | 장면 3장(ai-kiosk, appeal-morning, announcement-board), 모바일 세로 1장(ai-kiosk-mobile), 투명 PNG 원칙 배지 2장(principle-fairness, principle-transparency), 신청자 초상 12장(applicant-a01~a12) |
+| 프롬프트 | 요청서 `docs/IMAGE_REQUESTS.md` 의 문장을 그대로 사용. 실제 입력 전문은 `assets/additional-2026-11-02/ASSET_MANIFEST.json` |
+| 후편집 | 없음. 앱용은 크기 축소 + WebP 변환만 (`npm run images`) |
+| 사용 원칙 | 초상은 가상의 인물이며 이름·자료는 HTML 로 표시. 배지는 alt="" 로 두고 원칙 이름을 텍스트로 병기 |
+
 ## 2. 음향 10개
 
 | 항목 | 내용 |

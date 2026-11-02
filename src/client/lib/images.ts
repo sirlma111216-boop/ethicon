@@ -21,6 +21,7 @@ export type ImageId =
   | 'badge-revision'
   // ---- 개편 후 추가 요청 자산 (제공 전까지 FALLBACK 사용) ----
   | 'ai-kiosk'
+  | 'ai-kiosk-mobile'
   | 'appeal-morning'
   | 'announcement-board'
   | 'principle-fairness'
@@ -46,6 +47,7 @@ const WIDTHS: Record<ImageId, number[]> = {
   'badge-evidence': [320, 160],
   'badge-revision': [320, 160],
   'ai-kiosk': [1672, 1280],
+  'ai-kiosk-mobile': [941, 720],
   'appeal-morning': [1672, 1280],
   'announcement-board': [1672, 1280],
   'principle-fairness': [320, 160],
@@ -72,6 +74,13 @@ const PROVIDED = new Set<ImageId>([
   'badge-perspective',
   'badge-evidence',
   'badge-revision',
+  // 2026-11-02 추가분
+  'ai-kiosk',
+  'ai-kiosk-mobile',
+  'appeal-morning',
+  'announcement-board',
+  'principle-fairness',
+  'principle-transparency',
 ]);
 
 const FALLBACK: Partial<Record<ImageId, ImageId>> = {
@@ -102,6 +111,7 @@ export const ALT: Record<ImageId, string> = {
   'badge-evidence': '자료 폴더와 돋보기로 표현한 근거 확인 배지.',
   'badge-revision': '서로 맞물린 조각으로 표현한 규칙 수정 배지.',
   'ai-kiosk': '여섯 개의 빈 체험권 칸이 빛나는 AI 배정기와 그 앞에 선 위원회 학생들.',
+  'ai-kiosk-mobile': '세로 구도로 본 AI 배정기와 그 앞에 선 위원회 학생들.',
   'appeal-morning': '다음 날 아침, 위원회 책상 위에 놓인 세 통의 편지.',
   'announcement-board': '체험권 결과가 붙은 게시판 앞에 모인 신청자들.',
   'principle-fairness': '공정성·포용성 원칙 배지.',
@@ -120,7 +130,7 @@ export const imgSrcSet = (id: ImageId) => {
 };
 
 /** 신청자 초상(선택 자산). 아직 없으면 null → 이름 머리글자 아바타로 표시 */
-const PORTRAITS = new Set<string>([]);
+const PORTRAITS = new Set<string>(Array.from({ length: 12 }, (_, i) => `a${String(i + 1).padStart(2, '0')}`));
 export const portraitSrc = (applicantId: string) => (PORTRAITS.has(applicantId) ? `/images/festival/applicant-${applicantId}-320.webp` : null);
 
 const preloaded = new Set<string>();

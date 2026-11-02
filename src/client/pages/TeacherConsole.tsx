@@ -489,7 +489,7 @@ async function confirmRerun(run: (b: TeacherCommandBody) => Promise<boolean>, se
 }
 
 function kindLabel(kind: string): string {
-  return ({ survey_reason: '사전 판단 이유', investigate_reason: '조사 이유', post_reason: '성찰 이유', post_change: '변화 메모' } as Record<string, string>)[kind] ?? kind;
+  return ({ investigate_reason: '조사 이유', postcheck_reason: '성찰 이유' } as Record<string, string>)[kind] ?? kind;
 }
 
 function DecideModal({ phase, tie, tokens, onClose, onDecide }: { phase: Phase; tie: string[] | null; tokens: number; onClose: () => void; onDecide: (choice: string, reason: string) => void }) {
