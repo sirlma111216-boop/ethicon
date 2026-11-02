@@ -503,6 +503,11 @@ export class RoomDO extends DurableObject<Env> {
     } catch {
       /* ignore */
     }
+    try {
+      ws.serializeAttachment({ ...att, authed: false });
+    } catch {
+      /* 닫힌 소켓 */
+    }
     if (att.role === 'teacher' && att.authed) {
       // 남은 교사 소켓이 없으면 학생 화면에 '교사 연결 끊김' 상태를 알린다.
       if (this.teacherConnected(ws)) return;
@@ -515,8 +520,13 @@ export class RoomDO extends DurableObject<Env> {
     await this.webSocketClose(ws, 1011, 'error', false);
   }
 
+  /** 운영 환경에서는 하이버네이션 뒤 소켓 객체 동일성을 믿을 수 없으므로 readyState 로 판정한다. */
+  private isOpen(ws: WebSocket): boolean {
+    return ws.readyState === 1;
+  }
+
   private teacherConnected(except?: WebSocket): boolean {
-    return this.ctx.getWebSockets('teacher').some((s) => s !== except && this.att(s).authed);
+    return this.ctx.getWebSockets('teacher').some((s) => s !== except && this.isOpen(s) && this.att(s).authed);
   }
 
   // ---------- 학생 제출 ----------
@@ -1146,7 +1156,7 @@ export class RoomDO extends DurableObject<Env> {
     const pending = this.sql
       .exec<{ id: string; kind: string; text: string; status: 'pending' | 'approved' | 'hidden' }>(`SELECT id, kind, text, status FROM texts ORDER BY created_at DESC LIMIT 200`)
       .toArray();
-    const connected = this.ctx.getWebSockets('student').filter((s) => this.att(s).authed).length;
+    const connected = this.ctx.getWebSockets('student').filter((s) => this.isOpen(s) && this.att(s).authed).length;
     const reason = this.advanceBlockedReason(doc);
     const round = doc.rounds[doc.phase];
     return {

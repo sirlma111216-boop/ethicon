@@ -1,0 +1,20 @@
+import WebSocket from 'ws';
+const BASE = process.argv[2]; const WS = BASE.replace(/^http/, 'ws');
+const api = async (p, init) => { const r = await fetch(BASE + p, { headers: { 'content-type': 'application/json' }, ...init }); return r.json(); };
+const connect = (code, role, token) => new Promise((res, rej) => {
+  const ws = new WebSocket(`${WS}/ws?code=${code}&role=${role}`); const c = { ws, snap: null, ls: new Set() };
+  ws.on('open', () => ws.send(JSON.stringify({ type: 'auth', token })));
+  ws.on('message', (raw) => { const m = JSON.parse(raw.toString()); if (m.type === 'snapshot') { c.snap = m; res(c); for (const l of [...c.ls]) l(m); } });
+  ws.on('error', rej);
+});
+const { code, teacherToken } = await api('/api/rooms', { method: 'POST', body: '{}' });
+const j = await api(`/api/rooms/${code}/join`, { method: 'POST', body: '{}' });
+const t = await connect(code, 'teacher', teacherToken);
+const s = await connect(code, 'student', j.studentToken);
+console.log('student sees teacherConnected =', s.snap.state.teacherConnected);
+const t0 = Date.now();
+const seen = new Promise((res) => s.ls.add((m) => { if (m.state.teacherConnected === false) res(Date.now() - t0); }));
+t.ws.close(1000, 'bye');
+const ms = await Promise.race([seen, new Promise((r) => setTimeout(() => r('timeout 25s'), 25000))]);
+console.log('teacherConnected=false after', ms, 'ms');
+s.ws.close(); process.exit(0);

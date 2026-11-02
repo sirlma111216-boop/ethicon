@@ -174,6 +174,7 @@ async function main() {
   check('제출 전 학생·공개 화면에 분포 없음', !students[0].snap.state.tallies.pre_check && !board.snap.state.tallies.pre_check, '');
   await teacher.cmd({ op: 'reveal' });
   await teacher.waitFor((s) => s.state.round.revealed);
+  await Promise.all([students[0], board].map((c) => c.waitFor((x) => x.state.round.revealed)));
   check('결정 1 분포는 비공개 (응답 수만)', Object.keys(students[0].snap.state.tallies.pre_check.counts).length === 0 && students[0].snap.state.tallies.pre_check.responded === N, '');
   const late = await students[1].submit({ kind: 'precheck', choice: 'yes' });
   check('마감 후 제출 거부 (locked)', !late.ok && late.code === 'locked', late.code);
