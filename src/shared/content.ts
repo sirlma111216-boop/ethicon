@@ -7,7 +7,7 @@ export const MAX_STUDENTS = 40;
 export const FREE_TEXT_MAX = 80;
 
 export const APP_TITLE = '축제의 빈자리';
-export const APP_SUBTITLE = '우리 반이 바꾸는 AI의 선택';
+export const APP_SUBTITLE = 'AI 배정기는 누구를 빼놓았을까';
 export const SIMULATION_NOTICE = '실제 사람을 평가하지 않는 가상 AI 배정 실험입니다. 신청자와 자료는 모두 지어낸 것입니다.';
 
 /** 이야기 속 AI. 학습된 모델이 아니라 정해진 식을 계산하는 교육용 시뮬레이터라는 점을 화면에 명시한다. */
