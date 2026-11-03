@@ -115,7 +115,7 @@ export function TeacherConsole({ code }: { code: string }) {
   const copy = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast(`${label}을(를) 복사했어요.`);
+      toast(`복사했어요: ${label}`);
     } catch {
       toast('복사하지 못했어요. 주소를 직접 선택해 복사해 주세요.', 'error');
     }
@@ -157,7 +157,7 @@ export function TeacherConsole({ code }: { code: string }) {
             <div className="row between">
               <div>
                 <p className="h3" style={{ margin: 0 }}>
-                  {hasRound ? `응답 ${teacher.responseCount} / ${teacher.participants.total}명` : '응답 활동 없음'}
+                  {hasRound ? `응답 ${teacher.responseCount} / ${teacher.participants.total}명` : '이 장면에는 학생이 제출할 것이 없어요'}
                   {hasRound && round.rerunCount > 0 && ` · 재투표 ${round.rerunCount}회차`}
                 </p>
                 <p className="small muted" style={{ margin: 0 }}>

@@ -86,7 +86,7 @@ export function AiVerdictCard({ result }: { result: AllocationResult }) {
           </span>
           <div>
             <p className="eyebrow" style={{ margin: 0 }}>{AI_AGENT.name} 출력</p>
-            <p className="h3" style={{ margin: 0 }}>우선 체험권 추천 6명</p>
+            <p className="h3" style={{ margin: 0 }}>AI 배정기가 추천한 우선 체험권 6명</p>
           </div>
         </div>
         <span className="pill ghost">기준: {AI_AGENT.defaultRule}</span>
@@ -208,7 +208,7 @@ function unknownLine(ids: string[]): string {
   if (ids.includes('rules')) parts.push('"자기 설정이 무엇인지 운영팀이 열어 본 적도 없다는 것"');
   if (ids.includes('explanation')) parts.push('"떨어진 사람이 이유를 물을 곳이 없다는 것"');
   if (parts.length === 0) return `${AI_AGENT.name}는 세 가지 자료만 보고 계산했어요.`;
-  return `${AI_AGENT.name}는 세 가지 자료는 알았지만, ${parts.join(', ')}은(는) 묻지 않았어요.`;
+  return `${AI_AGENT.name}는 세 가지 자료만 알았어요. 다음은 묻지 않았어요: ${parts.join(' / ')}`;
 }
 
 /** 결정 2(AI 추천 처리)가 결정 4의 결과에 어떻게 이어졌는지 — 극단적인 선택에서도 앞 장면과 모순되지 않게 말한다. */
@@ -224,18 +224,18 @@ function DecisionEcho({ state }: { state: PublicState }) {
   if (v === 'approve') {
     const inNow = letterIds.filter((id) => c.after.selected.includes(id));
     text = unchanged
-      ? `우리는 확인 없이 승인했고, 편지를 받은 뒤에도 명단을 바꾸지 않았어요. 편지를 보낸 ${names(letterIds)}은(는) 여전히 대기예요. 이번엔 이유를 설명할 수 있을까요?`
+      ? `우리 반은 AI 추천을 확인 없이 승인했고, 편지를 받은 뒤에도 명단을 바꾸지 않았어요. 편지를 보낸 세 사람(${names(letterIds)})은 여전히 대기예요. 이번에는 우리가 이유를 설명할 수 있을까요?`
       : inNow.length > 0
-        ? `확인 없이 승인했던 명단이 바뀌었어요. 편지를 보낸 ${names(letterIds)} 중 ${names(inNow)}이(가) 이번엔 들어왔어요. 게시판을 고쳐야 하고, 자리를 잃은 ${names(c.lost)}에게도 설명해야 해요.`
-        : `명단은 바뀌었지만, 편지를 보낸 ${names(letterIds)}은(는) 이번에도 대기예요. 우리가 고친 것은 무엇이었을까요?`;
+        ? `우리 반이 확인 없이 승인했던 명단이 바뀌었어요. 편지를 보낸 세 사람 가운데 ${inNow.length}명(${names(inNow)})이 이번에는 들어왔어요. 운영자는 게시판을 고쳐야 하고, 자리를 잃은 사람(${names(c.lost)})에게는 우리가 설명해야 해요.`
+        : `명단은 바뀌었지만, 편지를 보낸 세 사람(${names(letterIds)})은 이번에도 대기예요. 우리 반이 고친 것은 무엇이었을까요?`;
   } else if (v === 'reject') {
     text = unchanged
-      ? '우리는 AI 추천을 거부했지만, 새 설정으로 다시 돌린 결과는 같은 명단이에요. 그때 거부의 근거는 무엇이었고, 지금은 무엇이 달라졌나요?'
-      : `거부했던 추천이 새 설정으로 바뀌었어요. 운영자가 물었던 "근거"는 이제 ${packageById(pkg).publishes.join('·')}로 설명할 수 있어요.`;
+      ? '우리 반은 AI 추천을 거부했지만, 새 설정으로 다시 돌린 결과는 처음과 같은 명단이에요. 그때 우리가 거부한 근거는 무엇이었고, 지금은 무엇이 달라졌나요?'
+      : `우리 반이 거부했던 추천이 새 설정으로 바뀌었어요. 운영자가 물었던 "근거"를 이제는 이렇게 설명할 수 있어요: ${packageById(pkg).publishes.join('·')}.`;
   } else {
     text = unchanged
-      ? '발표를 미루고 조사까지 했지만, 명단은 바꾸지 않기로 했어요. 조사로 얻은 것은 자리가 아니라 설명이에요. 그것으로 충분한가요?'
-      : `발표를 미룬 하루 동안 조사한 결과로 명단이 바뀌었어요. 기다려 준 운영자와 ${names(c.lost)}에게 무엇을 말해야 할까요?`;
+      ? '우리 반은 발표를 미루고 조사까지 했지만, 명단은 바꾸지 않기로 했어요. 조사로 얻은 것은 자리가 아니라 설명이에요. 그것으로 충분한가요?'
+      : `우리 반이 발표를 미룬 하루 동안 조사한 결과로 명단이 바뀌었어요. 기다려 준 운영자와, 자리를 잃은 사람(${names(c.lost)})에게 무엇을 말해야 할까요?`;
   }
   return (
     <div className="card compact" style={{ borderLeft: '6px solid var(--mint)' }}>
@@ -252,15 +252,18 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
     case 'post_check':
       return (
         <div className="paper">
-          <h3 className="h3">{phase === 'pre_check' ? '결정 1' : '결정 6'} 제출 현황</h3>
-          <p>응답 {tally?.responded ?? 0}명 / 전체 {tally?.eligible ?? state.joined}명. 이 문항의 분포와 이유는 공개하지 않아요. 엔딩에서 학급 전체의 변화만 묶어서 봐요.</p>
+          <h3 className="h3">{phase === 'pre_check' ? '결정 1 · 지금 내 생각' : '결정 6 · 다시, 내 생각'} 제출 현황</h3>
+          <p>
+            {tally?.eligible ?? state.joined}명 중 {tally?.responded ?? 0}명이 답했어요. 누가 무엇을 골랐는지는 공개하지 않아요.{' '}
+            {phase === 'pre_check' ? '다음 장면에서 AI 배정기의 추천을 봐요.' : '엔딩에서 우리 반 전체의 생각이 어떻게 움직였는지만 묶어서 봐요.'}
+          </p>
         </div>
       );
     case 'ai_verdict':
       return (
         <div className="stack">
           <div className="paper">
-            <h3 className="h3">AI 추천을 어떻게 할까 — 학급 투표</h3>
+            <h3 className="h3">AI 추천을 어떻게 할지 투표한 결과</h3>
             <TallyBars tally={tally} labels={verdictLabels} />
           </div>
           <TieNotice state={state} />
@@ -280,7 +283,7 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
       return (
         <div className="stack">
           <div className="paper">
-            <h3 className="h3">조사 토큰 투표 (토큰 {state.decisions.tokens ?? 2}개)</h3>
+            <h3 className="h3">어떤 카드를 열지 투표한 결과 (조사 토큰 {state.decisions.tokens ?? 2}개)</h3>
             <TallyBars tally={tally} labels={clueLabels} />
           </div>
           <TieNotice state={state} />
@@ -332,7 +335,7 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
       return (
         <div className="stack">
           <div className="paper">
-            <h3 className="h3">새 설정 묶음 투표</h3>
+            <h3 className="h3">AI 배정기의 새 설정을 투표한 결과</h3>
             <TallyBars tally={tally} labels={packageLabels} />
           </div>
           <TieNotice state={state} />
@@ -375,7 +378,7 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
       return (
         <div className="stack">
           <div className="paper">
-            <h3 className="h3">다른 AI에게 먼저 물어볼 질문 — 학급 투표</h3>
+            <h3 className="h3">먼저 물어볼 질문을 투표한 결과</h3>
             <TallyBars tally={tally} labels={questionLabels} />
           </div>
           <TieNotice state={state} />
@@ -409,16 +412,17 @@ export function EndingContent({ e, big }: { e: EndingSummary; big?: boolean }) {
   return (
     <div className="stack" style={{ gap: big ? 14 : 10 }}>
       <h2 className="h2">우리의 기준은 이렇게 달라졌다</h2>
-      {e.verdictNote && <p className="small" style={{ margin: 0, opacity: 0.9 }}>{e.verdictNote}</p>}
       <p>
-        AI 추천에 대한 첫 결정 <strong>{e.verdictLabel}</strong> → 새 설정 <strong>{e.pkgName}</strong>
+        우리 반은 AI 추천을 <strong>{e.verdictLabel}</strong>했고, AI 배정기의 새 설정으로 <strong>{e.pkgName}</strong>을 골랐어요.
         {e.gained.length > 0 && (
           <>
             {' '}
-            · 새로 자리를 얻은 {e.gained.join('·')}, 잃은 {e.lost.join('·')}
+            그 결과 {e.gained.join('·')}이 새로 자리를 얻고, {e.lost.join('·')}이 자리를 잃었어요.
           </>
         )}
+        {e.gained.length === 0 && ' 그 결과 자리는 처음 추천과 같아요.'}
       </p>
+      {e.verdictNote && <p className="small" style={{ margin: 0, opacity: 0.9 }}>{e.verdictNote}</p>}
       <div>
         <p style={{ fontWeight: 700 }}>AI 결정을 받으면 먼저 물어볼 질문</p>
         <ul>{e.questions.length ? e.questions.map((q) => <li key={q}>{q}</li>) : <li>(아직 정하지 못했어요)</li>}</ul>
@@ -428,7 +432,7 @@ export function EndingContent({ e, big }: { e: EndingSummary; big?: boolean }) {
       </p>
       {shift && (
         <p className="small">
-          "자료대로 계산하면 공정할까?" 사전 {shift.respondedBefore}명 · 사후 {shift.respondedAfter}명 응답. 사후에 가장 많이 고른 답: {topAfter}
+          "AI 배정기가 자료대로 계산하면 공정할까?"에 수업 처음에는 {shift.respondedBefore}명, 마지막에는 {shift.respondedAfter}명이 답했어요. 마지막에 가장 많이 고른 답은 "{topAfter}"예요.
         </p>
       )}
     </div>

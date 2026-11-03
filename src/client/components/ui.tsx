@@ -224,8 +224,8 @@ export function ComparisonView({ c }: { c: Comparison }) {
           <thead>
             <tr>
               <th scope="col">비교 항목</th>
-              <th scope="col">이전 (라운드 1)</th>
-              <th scope="col">이후 (라운드 3)</th>
+              <th scope="col">이전 (AI 배정기의 첫 추천)</th>
+              <th scope="col">이후 (우리 반이 고른 새 설정)</th>
             </tr>
           </thead>
           <tbody>

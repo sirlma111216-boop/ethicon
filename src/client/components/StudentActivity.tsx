@@ -113,7 +113,7 @@ export function CheckActivity({ state, me, submit, preview, post }: ActivityProp
   return (
     <div className="stack">
     {!post && <KioskHeader eyebrow="결정 1" title="AI 배정기가 추천한다면" line="운영팀이 올해 처음 들인 AI 배정기. 자료대로 계산한 결과는 공정할까요?" />}
-    <Frame eyebrow={post ? '결정 6 · 다시, 내 생각' : '결정 1 · 지금 내 생각'} question={CHECK_QUESTION} hint={post ? '오늘 본 것을 떠올리며 다시 답해요. 생각을 바꿔도, 지켜도 점수는 없어요. 이유를 한 줄 적어도 좋아요.' : '지금 생각을 하나만 골라요. 정답은 없고, 내 답은 공개되지 않아요. 수업 끝에 다시 답할 거예요.'}>
+    <Frame eyebrow={post ? '결정 6 · 다시, 내 생각' : '결정 1 · 지금 내 생각'} question={CHECK_QUESTION} hint={post ? '오늘 본 것을 떠올리며 다시 답해요. 생각을 바꿔도, 지켜도 점수는 없어요. 이유를 한 줄 적어도 좋아요.' : '지금 내 생각과 가장 가까운 것을 하나만 골라요. 정답은 없고, 내 답은 공개되지 않아요. 수업 끝에 같은 질문에 다시 답해요.'}>
       {post && beforeLabel && (
         <div className="banner" style={{ background: 'var(--paper-2)', color: 'var(--paper-ink)' }}>
           수업 시작 때 내 답: <strong>{beforeLabel}</strong>
@@ -143,7 +143,7 @@ export function VerdictActivity({ state, me, submit, preview }: ActivityProps) {
     <div className="stack">
       <KioskHeader eyebrow="결정 2" title="AI 배정기의 추천이 나왔다" line="빈 칸 여섯 개에 여섯 명의 이름. 우리 위원회는 이 추천을 어떻게 할까요?" />
       {state.allocations.r1 && <AiVerdictCard result={state.allocations.r1} />}
-      <Frame eyebrow="결정 2" question={VERDICT_QUESTION} hint={limit ? '동률 재투표예요. 동률이었던 선택지 중에서만 고를 수 있어요.' : '세 가지 중 하나. 이 선택에 따라 다음 장면이 달라져요.'}>
+      <Frame eyebrow="결정 2" question={VERDICT_QUESTION} hint={limit ? '동률 재투표예요. 동률이었던 선택지 중에서만 고를 수 있어요.' : '세 가지 중 하나를 골라요. 우리 반이 많이 고른 쪽으로 결정되고, 그 결정에 따라 다음 장면이 달라져요.'}>
         <div className="choice-list">
           {options.map((o, i) => (
             <Choice key={o.id} index={i} title={o.label} desc={`${o.desc}  ·  ${o.consequence}`} pressed={choice === o.id} onClick={() => setChoice(o.id)} disabled={state.round.locked} />
@@ -208,7 +208,7 @@ export function PackageActivity({ state, me, submit, preview }: ActivityProps) {
   const limit = state.round.limitTo;
   const options = PACKAGES.filter((p) => !limit || limit.includes(p.id));
   return (
-    <Frame eyebrow="결정 4" question="AI 배정기의 설정을 어떻게 바꿀까?" hint={limit ? '동률 재투표예요. 동률이었던 묶음 중에서만 고를 수 있어요.' : '배정 기준·설명 방식·이의 제기를 묶은 네 묶음 중 하나. 조각을 섞을 수는 없어요. 고르면 AI가 같은 12명을 다시 계산해요.'}>
+    <Frame eyebrow="결정 4" question="AI 배정기의 설정을 어떻게 바꿀까?" hint={limit ? '동률 재투표예요. 동률이었던 묶음 중에서만 고를 수 있어요.' : '배정 기준·설명 방식·이의 제기를 묶은 네 묶음 중 하나를 골라요. 조각을 섞을 수는 없어요. 우리 반이 고른 묶음으로 AI 배정기가 같은 12명을 다시 계산해요.'}>
       <div className="choice-list">
         {options.map((p, i) => (
           <Choice key={p.id} index={i} title={p.name} badge={p.kind} desc={`배정: ${p.criteria}  ·  설명: ${p.explanation}  ·  이의 제기: ${p.appeal}`} pressed={choice === p.id} onClick={() => setChoice(p.id)} disabled={state.round.locked} />
@@ -234,7 +234,7 @@ export function TransferActivity({ state, me, submit, preview }: ActivityProps) 
         <p className="eyebrow">{TRANSFER_SCENARIO.title}</p>
         <p style={{ margin: 0, fontSize: 18 }}>{TRANSFER_SCENARIO.story}</p>
       </section>
-      <Frame eyebrow="결정 5" question={TRANSFER_SCENARIO.question} hint={limit ? '동률 재투표예요. 동률이었던 질문 중에서만 고를 수 있어요.' : '질문 하나만 골라요. 많이 고른 2개가 "AI 결정을 받으면 먼저 묻는" 우리 반의 약속이 돼요.'}>
+      <Frame eyebrow="결정 5" question={TRANSFER_SCENARIO.question} hint={limit ? '동률 재투표예요. 동률이었던 질문 중에서만 고를 수 있어요.' : '질문 하나만 골라요. 우리 반에서 가장 많이 고른 질문 2개가 "AI 결정을 받으면 먼저 묻는" 우리 반의 약속이 돼요.'}>
         <div className="choice-list">
           {options.map((q, i) => (
             <Choice key={q.id} index={i} title={q.text} pressed={choice === q.id} onClick={() => setChoice(q.id)} disabled={state.round.locked} />

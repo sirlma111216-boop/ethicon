@@ -50,13 +50,14 @@ import {
   type SubmissionPayload,
   type Tally,
   type TeacherDecision,
+  type TeacherNotes,
   type TeacherState,
   type TeacherSummary,
   type VerdictChoice,
   type VerdictScene,
 } from '../shared/types';
 import { BOT_ADJ, BOT_NOUNS, botPayload } from './bots';
-import { BARRIERS, CLUE_SECRETS, OPEN_QUESTION_BY_PACKAGE, TEACHER_NOTES, VERDICT_LABELS, VERDICT_SCENES } from './secretContent';
+import { BARRIERS, CLUE_SECRETS, OPEN_QUESTION_BY_PACKAGE, TEACHER_NOTES, VERDICT_LABELS, VERDICT_RESULT_SCRIPTS, VERDICT_SCENES } from './secretContent';
 import { clientMessageSchema, type ParsedClientMessage } from './validate';
 
 // ---------- 저장 문서 ----------
@@ -556,7 +557,18 @@ export class RoomDO extends DurableObject<Env> {
     this.storeSubmission(pid, round, doc.phase, msg.payload as SubmissionPayload);
     this.bump();
     this.send(ws, { type: 'ack', messageId: msg.messageId, ok: true, revision: doc.revision });
-    await this.broadcast();
+    this.scheduleBroadcast();
+  }
+
+  private broadcastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** 40명이 동시에 제출할 때 소켓마다 40번 보내지 않도록 120ms 안의 변경을 한 번의 브로드캐스트로 묶는다. */
+  private scheduleBroadcast() {
+    if (this.broadcastTimer) return;
+    this.broadcastTimer = setTimeout(() => {
+      this.broadcastTimer = null;
+      void this.broadcast();
+    }, 120);
   }
 
   /** 제출 저장(학생·봇 공용): 마지막 유효 응답으로 교체, 자유 응답은 승인 대기열로 */
@@ -1004,7 +1016,7 @@ export class RoomDO extends DurableObject<Env> {
     const fairnessDid = !info
       ? '새 규칙을 정하지 못했어요.'
       : pkg === 'keep' || pkg === 'open'
-        ? '자리는 바꾸지 않기로 했어요. 신청 기회가 늦게 열린 사람의 불리함은 그대로 남았어요.'
+        ? '자리를 바꾸지 않기로 했어요. 신청 기회가 늦게 열린 사람의 불리함은 그대로 남았어요.'
         : pkg === 'access'
           ? '신청 기회가 늦게 열린 사람의 시각을 보정하고, 처음 참여하는 사람에게 2자리를 열었어요.'
           : '처음 참여하는 사람 3자리와 경험자 3자리로 나눠 두 입장을 모두 자리에 포함했어요.';
@@ -1142,13 +1154,34 @@ export class RoomDO extends DurableObject<Env> {
     };
   }
 
-  private meState(doc: RoomDoc, pid: string, row?: ParticipantRow): MeState | null {
+  /** 현재 라운드들의 제출을 참가자별로 묶어 한 번에 읽는다(브로드캐스트 시 학생 수만큼 질의하지 않기 위해). */
+  private submissionsByParticipant(doc: RoomDoc): Map<string, { round_id: string; phase: Phase; payload: string; updated_at: number }[]> {
+    const roundIds = Object.values(doc.rounds).map((r) => r.roundId);
+    const map = new Map<string, { round_id: string; phase: Phase; payload: string; updated_at: number }[]>();
+    if (roundIds.length === 0) return map;
+    const rows = this.sql
+      .exec<{ participant_id: string; round_id: string; phase: Phase; payload: string; updated_at: number }>(
+        `SELECT participant_id, round_id, phase, payload, updated_at FROM submissions WHERE round_id IN (${roundIds.map(() => '?').join(',')})`,
+        ...roundIds,
+      )
+      .toArray();
+    for (const row of rows) {
+      const list = map.get(row.participant_id) ?? [];
+      list.push(row);
+      map.set(row.participant_id, list);
+    }
+    return map;
+  }
+
+  private meState(doc: RoomDoc, pid: string, row?: ParticipantRow, preloaded?: { round_id: string; phase: Phase; payload: string; updated_at: number }[]): MeState | null {
     const p = row ?? this.sql.exec<ParticipantRow>(`SELECT id, pseudonym, avatar, perspective, joined_at, last_seen FROM participants WHERE id = ?`, pid).toArray()[0];
     if (!p) return null;
     const submissions: MeState['submissions'] = {};
-    const rows = this.sql
-      .exec<{ round_id: string; phase: Phase; payload: string; updated_at: number }>(`SELECT round_id, phase, payload, updated_at FROM submissions WHERE participant_id = ?`, pid)
-      .toArray();
+    const rows =
+      preloaded ??
+      this.sql
+        .exec<{ round_id: string; phase: Phase; payload: string; updated_at: number }>(`SELECT round_id, phase, payload, updated_at FROM submissions WHERE participant_id = ?`, pid)
+        .toArray();
     for (const r of rows) {
       const cur = doc.rounds[r.phase];
       if (cur && cur.roundId === r.round_id) submissions[r.phase] = { roundId: r.round_id, payload: JSON.parse(r.payload) as SubmissionPayload, at: Number(r.updated_at) };
@@ -1165,6 +1198,14 @@ export class RoomDO extends DurableObject<Env> {
     };
   }
 
+  /** 교사 메모. '우리 결정의 결과' 장면은 학급이 고른 분기에 맞는 대본으로 바꾼다. */
+  private notesFor(doc: RoomDoc): TeacherNotes | null {
+    const base = TEACHER_NOTES[doc.phase];
+    if (!base) return null;
+    if (doc.phase === 'verdict_result' && doc.decisions.verdict) return { ...base, script: VERDICT_RESULT_SCRIPTS[doc.decisions.verdict] };
+    return base;
+  }
+
   private teacherState(doc: RoomDoc): TeacherState {
     const pending = this.sql
       .exec<{ id: string; kind: string; text: string; status: 'pending' | 'approved' | 'hidden' }>(`SELECT id, kind, text, status FROM texts ORDER BY created_at DESC LIMIT 200`)
@@ -1175,7 +1216,7 @@ export class RoomDO extends DurableObject<Env> {
     return {
       publicToken: doc.publicToken,
       pendingTexts: shuffleWithSeed(pending, doc.lotterySeed),
-      notes: TEACHER_NOTES[doc.phase] ?? null,
+      notes: this.notesFor(doc),
       participants: { connected, total: this.participantCount(), bots: this.botCount() },
       responseCount: round ? Number(this.sql.exec<{ n: number }>(`SELECT COUNT(*) AS n FROM submissions WHERE round_id = ?`, round.roundId).one().n) : 0,
       canAdvance: !reason,
@@ -1190,16 +1231,16 @@ export class RoomDO extends DurableObject<Env> {
     this.sendRoleSnapshot(ws, att, doc, state);
   }
 
-  private sendRoleSnapshot(ws: WebSocket, att: Attachment, doc: RoomDoc, state: PublicState, participants?: Map<string, ParticipantRow>) {
+  private sendRoleSnapshot(ws: WebSocket, att: Attachment, doc: RoomDoc, state: PublicState, participants?: Map<string, ParticipantRow>, subs?: Map<string, { round_id: string; phase: Phase; payload: string; updated_at: number }[]>, teacher?: TeacherState) {
     if (att.role === 'student' && att.pid) {
-      const me = this.meState(doc, att.pid, participants?.get(att.pid));
+      const me = this.meState(doc, att.pid, participants?.get(att.pid), subs ? (subs.get(att.pid) ?? []) : undefined);
       if (!me) {
         this.send(ws, { type: 'error', code: 'unknown_student', message: '참가 정보가 삭제되었어요. 다시 입장해 주세요.', fatal: true });
         return;
       }
       this.send(ws, { type: 'snapshot', state, me });
     } else if (att.role === 'teacher') {
-      this.send(ws, { type: 'snapshot', state, teacher: this.teacherState(doc) });
+      this.send(ws, { type: 'snapshot', state, teacher: teacher ?? this.teacherState(doc) });
     } else {
       this.send(ws, { type: 'snapshot', state });
     }
@@ -1216,6 +1257,9 @@ export class RoomDO extends DurableObject<Env> {
         .toArray()
         .map((r) => [r.id, r]),
     );
+    const subs = this.submissionsByParticipant(doc);
+    // 교사 상태는 소켓마다 다시 계산하지 않는다(교사 창이 여러 개여도 한 번만).
+    let teacherCache: TeacherState | null = null;
     const now = Date.now();
     for (const ws of this.ctx.getWebSockets()) {
       const att = this.att(ws);
@@ -1229,7 +1273,8 @@ export class RoomDO extends DurableObject<Env> {
         }
         continue;
       }
-      this.sendRoleSnapshot(ws, att, doc, state, participants);
+      if (att.role === 'teacher' && !teacherCache) teacherCache = this.teacherState(doc);
+      this.sendRoleSnapshot(ws, att, doc, state, participants, subs, teacherCache ?? undefined);
     }
   }
 
