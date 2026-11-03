@@ -381,7 +381,7 @@ export function TeacherConsole({ code }: { code: string }) {
               {PHASE_META.filter((p) => p.id !== 'closed').map((p, i) => {
                 const pi = phaseIndex(p.id);
                 return (
-                  <button key={p.id} className={`phase-item ${pi === idx ? 'current' : pi < idx ? 'done' : ''}`} style={{ border: 0, background: pi === idx ? undefined : 'transparent', cursor: pi < idx && pi >= 1 ? 'pointer' : 'default', textAlign: 'left' }} disabled={!(pi < idx && pi >= 1)} onClick={() => run({ op: 'goto', phase: p.id })} title={pi < idx ? '지난 장면 다시 보기 (투표는 다시 열리지 않아요)' : ''}>
+                  <button key={p.id} className={`phase-item ${pi === idx ? 'current' : pi <= state.maxPhaseIndex ? 'done' : ''}`} style={{ border: 0, background: pi === idx ? undefined : 'transparent', cursor: pi !== idx && pi >= 1 && pi <= state.maxPhaseIndex ? 'pointer' : 'default', textAlign: 'left' }} disabled={!(pi !== idx && pi >= 1 && pi <= state.maxPhaseIndex)} onClick={() => run({ op: 'goto', phase: p.id })} title={pi !== idx && pi <= state.maxPhaseIndex ? '이미 지난 장면으로 이동 (투표는 다시 열리지 않아요)' : ''}>
                     <span className="n">{i}</span>
                     <span style={{ flex: 1 }}>{p.title}</span>
                     <span className="small">{p.minuteMark}</span>

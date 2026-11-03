@@ -77,7 +77,7 @@ export const VERDICT_SCENES: Record<VerdictChoice, { title: string; story: strin
     story: [
       '위원회는 AI 배정기의 추천을 그대로 승인했고, 체험권 6장은 그날 오후 게시판에 붙었어요.',
       '다음 날 아침, 위원회 상자에 이의 제기 편지 세 통이 들어 있었어요.',
-      '축제는 내일이에요. 위원회가 다시 열렸지만 시간이 없어요.',
+      '축제는 내일이에요. 운영자는 "내일 아침까지 결정을 바꾸면 게시판을 고치겠다"고 했어요. 위원회가 다시 열렸지만 시간이 없어요.',
     ],
     letters: [
       { applicantId: 'a07', text: '"점심 급식 당번이라 12:43에야 신청할 수 있었어요. 제가 늦은 게 맞나요?"' },
@@ -117,7 +117,7 @@ export const VERDICT_SCENES: Record<VerdictChoice, { title: string; story: strin
 };
 
 export const VERDICT_LABELS: Record<VerdictChoice, { label: string; note: string }> = {
-  approve: { label: '확인 없이 승인', note: '우리는 AI 추천을 먼저 승인했고, 이의 제기를 받은 뒤에야 조사했어요.' },
+  approve: { label: '확인 없이 승인', note: '우리는 AI 추천을 먼저 승인했고, 이의 제기 편지를 받은 뒤에야 조사했어요. 그래서 조사 토큰이 1개뿐이었어요.' },
   investigate: { label: '승인 전에 조사', note: '우리는 발표를 미루고 AI가 쓴 자료부터 확인했어요.' },
   reject: { label: '근거 없이 거부', note: '우리는 AI 추천을 먼저 거부했고, 그다음에 근거를 찾았어요.' },
 };

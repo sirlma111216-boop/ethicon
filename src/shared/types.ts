@@ -138,6 +138,8 @@ export interface PublicState {
   appEnv: string;
   phase: Phase;
   phaseIndex: number;
+  /** 지금까지 도달한 가장 뒤 장면. 이전 장면 보기 뒤 여기까지는 바로 돌아갈 수 있다 */
+  maxPhaseIndex: number;
   round: PhaseRound;
   revision: number;
   /** 장면·라운드·결정이 바뀔 때만 증가. 교사 버튼 연타 방지용 */

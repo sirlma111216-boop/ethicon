@@ -69,6 +69,8 @@ interface RoomDoc {
   publicToken: string;
   lotterySeed: string;
   phase: Phase;
+  /** 도달한 가장 뒤 장면 인덱스 */
+  maxPhaseIndex?: number;
   rounds: Partial<Record<Phase, PhaseRound>>;
   revision: number;
   flowRevision: number;
@@ -192,6 +194,7 @@ export class RoomDO extends DurableObject<Env> {
     if (!row) return null;
     const doc = JSON.parse(row.value) as RoomDoc;
     doc.flowRevision ??= 1;
+    doc.maxPhaseIndex ??= Math.max(phaseIndex(doc.phase), ...(Object.keys(doc.rounds) as Phase[]).map((p) => phaseIndex(p)));
     return doc;
   }
 
@@ -628,7 +631,7 @@ export class RoomDO extends DurableObject<Env> {
       case 'goto': {
         const target = phaseIndex(c.phase);
         const cur = phaseIndex(doc.phase);
-        if (target > cur) throw new CommandError('bad_state', '앞 장면으로 건너뛸 수 없어요. "다음 장면"을 사용해 주세요.');
+        if (target > Math.max(cur, doc.maxPhaseIndex ?? cur)) throw new CommandError('bad_state', '아직 가지 않은 장면으로 건너뛸 수 없어요. "다음 장면"을 사용해 주세요.');
         if (target < 1) throw new CommandError('bad_state', '대기실로는 돌아갈 수 없어요.');
         doc.phase = c.phase;
         this.log('phase_goto', { phase: doc.phase });
@@ -655,6 +658,7 @@ export class RoomDO extends DurableObject<Env> {
         break;
       case 'rerun': {
         if (!round) throw new CommandError('bad_state', '이 장면에는 활동이 없어요.');
+        if (this.hasLaterRound(doc)) throw new CommandError('bad_state', '이미 다음 결정이 진행된 활동은 다시 투표할 수 없어요. 처음부터 다시 하려면 새 방을 만들어 주세요.');
         const limitTo = round.tie && round.tie.length > 1 ? round.tie : null;
         const seconds = c.seconds ?? 30;
         doc.rounds[doc.phase] = {
@@ -710,6 +714,7 @@ export class RoomDO extends DurableObject<Env> {
         break;
       case 'decide':
         if (!round) throw new CommandError('bad_state', '이 장면에는 결정할 활동이 없어요.');
+        if (this.hasLaterRound(doc)) throw new CommandError('bad_state', '이미 다음 결정이 진행된 활동은 바꿀 수 없어요.');
         this.teacherDecide(doc, round, c.choice, c.reason);
         break;
       case 'skip':
@@ -760,6 +765,7 @@ export class RoomDO extends DurableObject<Env> {
   private enterPhase(doc: RoomDoc, phase: Phase) {
     doc.phase = phase;
     doc.paused = false;
+    doc.maxPhaseIndex = Math.max(doc.maxPhaseIndex ?? 0, phaseIndex(phase));
     const meta = phaseMeta(phase);
     // AI 배정기의 첫 추천은 기본 설정(선착순)으로 고정. 세션 추첨 순서만 다르다.
     if (phase === 'ai_verdict' && !doc.allocations.r1) doc.allocations.r1 = r1Allocation(AI_AGENT.defaultRuleId, this.lottery(doc));
@@ -781,6 +787,12 @@ export class RoomDO extends DurableObject<Env> {
     }
     if (phase === 'ending' && !doc.ending) doc.ending = this.buildEnding(doc);
     this.log('phase', { phase });
+  }
+
+  /** 현재 장면보다 뒤의 활동 라운드가 이미 만들어졌는지(뒤로 보기 중인지) */
+  private hasLaterRound(doc: RoomDoc): boolean {
+    const idx = phaseIndex(doc.phase);
+    return (Object.keys(doc.rounds) as Phase[]).some((p) => phaseIndex(p) > idx);
   }
 
   private advanceBlockedReason(doc: RoomDoc): string | null {
@@ -1099,6 +1111,7 @@ export class RoomDO extends DurableObject<Env> {
       appEnv: this.env.APP_ENV ?? 'development',
       phase: doc.phase,
       phaseIndex: idx,
+      maxPhaseIndex: Math.max(idx, doc.maxPhaseIndex ?? idx),
       round,
       revision: doc.revision,
       flowRevision: doc.flowRevision,

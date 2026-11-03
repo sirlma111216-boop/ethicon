@@ -169,7 +169,19 @@ export function VerdictSceneView({ scene, state }: { scene: VerdictScene; state:
 export function TieNotice({ state }: { state: PublicState }) {
   const tie = state.round.tie;
   if (!tie) return null;
-  if (tie.length === 0) return <div className="banner warn">응답이 없어 결정하지 못했어요. 선생님이 시간을 연장하거나 결정을 내려요.</div>;
+  const tally = state.tallies[state.phase];
+  const responded = tally?.responded ?? 0;
+  const abstained = tally?.counts['abstain'] ?? 0;
+  const need = state.phase === 'investigate' ? (state.decisions.tokens ?? 2) : state.phase === 'transfer' ? 2 : 1;
+  if (tie.length === 0) {
+    if (responded > 0 && abstained >= responded) {
+      return <div className="banner warn">모두가 "아직 모르겠다"를 골랐어요. 결정을 미루는 것도 선택이지만, 축제는 기다려 주지 않아요. 선생님이 시간을 연장하거나 결정을 내려요.</div>;
+    }
+    return <div className="banner warn">{responded === 0 ? '응답이 없어' : '유효한 선택이 없어'} 결정하지 못했어요. 선생님이 시간을 연장하거나 결정을 내려요.</div>;
+  }
+  if (tie.length < need) {
+    return <div className="banner warn">{need}개가 필요한데 {tie.length}개만 뽑혔어요. 선생님이 나머지를 이유와 함께 정해요.</div>;
+  }
   return (
     <div className="banner warn" role="status">
       동률이에요. 선생님이 30초 재투표를 열거나, 이유를 남기고 결정해요. 교사 결정은 학급 다수결과 구분해 표시돼요.
@@ -184,6 +196,51 @@ export function TeacherDecisionNote({ state, phase }: { state: PublicState; phas
   return (
     <div className="banner" role="note">
       <strong>교사 결정</strong> — 학급 투표로 정해지지 않아 선생님이 정했어요. 이유: {last.reason}
+    </div>
+  );
+}
+
+/** 열린 단서에 맞춰 "AI가 묻지 않은 것"을 말한다. 열리지 않은 카드의 내용은 미리 말하지 않는다. */
+function unknownLine(ids: string[]): string {
+  const parts: string[] = [];
+  if (ids.includes('access')) parts.push('"그 시각에 신청할 수 있었는지"');
+  if (ids.includes('experience')) parts.push('"처음 참여하는 사람은 참여 횟수가 0일 수밖에 없다는 것"');
+  if (ids.includes('rules')) parts.push('"자기 설정이 무엇인지 운영팀이 열어 본 적도 없다는 것"');
+  if (ids.includes('explanation')) parts.push('"떨어진 사람이 이유를 물을 곳이 없다는 것"');
+  if (parts.length === 0) return `${AI_AGENT.name}는 세 가지 자료만 보고 계산했어요.`;
+  return `${AI_AGENT.name}는 세 가지 자료는 알았지만, ${parts.join(', ')}은(는) 묻지 않았어요.`;
+}
+
+/** 결정 2(AI 추천 처리)가 결정 4의 결과에 어떻게 이어졌는지 — 극단적인 선택에서도 앞 장면과 모순되지 않게 말한다. */
+function DecisionEcho({ state }: { state: PublicState }) {
+  const v = state.decisions.verdict;
+  const c = state.allocations.r3;
+  const pkg = state.decisions.pkg;
+  if (!v || !c || !pkg) return null;
+  const letterIds = state.verdictScene?.letters.map((l) => l.applicantId) ?? [];
+  const names = (ids: string[]) => ids.map((id) => applicantById(id).name).join('·');
+  const unchanged = c.gained.length === 0;
+  let text: string;
+  if (v === 'approve') {
+    const inNow = letterIds.filter((id) => c.after.selected.includes(id));
+    text = unchanged
+      ? `우리는 확인 없이 승인했고, 편지를 받은 뒤에도 명단을 바꾸지 않았어요. 편지를 보낸 ${names(letterIds)}은(는) 여전히 대기예요. 이번엔 이유를 설명할 수 있을까요?`
+      : inNow.length > 0
+        ? `확인 없이 승인했던 명단이 바뀌었어요. 편지를 보낸 ${names(letterIds)} 중 ${names(inNow)}이(가) 이번엔 들어왔어요. 게시판을 고쳐야 하고, 자리를 잃은 ${names(c.lost)}에게도 설명해야 해요.`
+        : `명단은 바뀌었지만, 편지를 보낸 ${names(letterIds)}은(는) 이번에도 대기예요. 우리가 고친 것은 무엇이었을까요?`;
+  } else if (v === 'reject') {
+    text = unchanged
+      ? '우리는 AI 추천을 거부했지만, 새 설정으로 다시 돌린 결과는 같은 명단이에요. 그때 거부의 근거는 무엇이었고, 지금은 무엇이 달라졌나요?'
+      : `거부했던 추천이 새 설정으로 바뀌었어요. 운영자가 물었던 "근거"는 이제 ${packageById(pkg).publishes.join('·')}로 설명할 수 있어요.`;
+  } else {
+    text = unchanged
+      ? '발표를 미루고 조사까지 했지만, 명단은 바꾸지 않기로 했어요. 조사로 얻은 것은 자리가 아니라 설명이에요. 그것으로 충분한가요?'
+      : `발표를 미룬 하루 동안 조사한 결과로 명단이 바뀌었어요. 기다려 준 운영자와 ${names(c.lost)}에게 무엇을 말해야 할까요?`;
+  }
+  return (
+    <div className="card compact" style={{ borderLeft: '6px solid var(--mint)' }}>
+      <p className="h3" style={{ marginBottom: 4 }}>우리 결정의 흔적</p>
+      <p style={{ margin: 0 }}>{text}</p>
     </div>
   );
 }
@@ -238,7 +295,8 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
           ))}
           <div className="band magenta">
             <p className="eyebrow" style={{ color: '#fff' }}>AI 배정기가 몰랐던 것</p>
-            <p className="h3" style={{ margin: 0 }}>{AI_AGENT.name}는 "몇 시에 신청했는지"는 알았지만, "그 시각에 신청할 수 있었는지"와 "왜 그 자료를 쓰는지"는 묻지 않았어요.</p>
+            <p className="h3" style={{ margin: 0 }}>{unknownLine(state.revealedClues.map((c) => c.id))}</p>
+            {state.baseClues.length > 0 && <p className="small" style={{ margin: '6px 0 0', opacity: 0.9 }}>아직 열지 않은 카드 {state.baseClues.length}장에도 AI가 묻지 않은 것이 더 있어요. 아래 "기본 자료 보기"에서 확인할 수 있어요.</p>}
           </div>
           <div>
             <h3 className="h2" style={{ marginBottom: 8 }}>관점 보드</h3>
@@ -306,6 +364,7 @@ export function PhaseResult({ state, phase }: { state: PublicState; phase: Phase
             </div>
           </section>
           <ComparisonView c={state.allocations.r3} />
+          <DecisionEcho state={state} />
           <div className="card compact" style={{ borderLeft: '6px solid var(--warn)' }}>
             <p className="h3" style={{ marginBottom: 4 }}>남은 문제</p>
             <p style={{ margin: 0 }}>{packageById(state.decisions.pkg).remainingProblem}</p>
@@ -350,6 +409,7 @@ export function EndingContent({ e, big }: { e: EndingSummary; big?: boolean }) {
   return (
     <div className="stack" style={{ gap: big ? 14 : 10 }}>
       <h2 className="h2">우리의 기준은 이렇게 달라졌다</h2>
+      {e.verdictNote && <p className="small" style={{ margin: 0, opacity: 0.9 }}>{e.verdictNote}</p>}
       <p>
         AI 추천에 대한 첫 결정 <strong>{e.verdictLabel}</strong> → 새 설정 <strong>{e.pkgName}</strong>
         {e.gained.length > 0 && (
